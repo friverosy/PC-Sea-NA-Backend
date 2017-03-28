@@ -3,9 +3,9 @@
 import mongoose from 'mongoose';
 
 var ItinerarySchema = new mongoose.Schema({
-  name: String,
-  info: String,
-  active: Boolean
+  route: { type: mongoose.Types.ObjectId, ref: 'Route' },
+  manifest: { type: mongoose.Types.ObjectId, ref: 'Manifest' },
+  staff: { type: mongoose.Types.ObjectId, ref: 'Staff' }
 });
 
 export default mongoose.model('Itinerary', ItinerarySchema);

@@ -3,9 +3,13 @@
 import mongoose from 'mongoose';
 
 var ManifestSchema = new mongoose.Schema({
-  name: String,
-  info: String,
-  active: Boolean
+  reservationId: String,
+  reservationStatus: String,
+  ticketId: String,
+  
+  person: { type: mongoose.Types.ObjectId, ref: 'Person' },
+  origin: { type: mongoose.Types.ObjectId, ref: 'Seaport' },
+  destination: { type: mongoose.Types.ObjectId, ref: 'Seaport' }
 });
 
 export default mongoose.model('Manifest', ManifestSchema);

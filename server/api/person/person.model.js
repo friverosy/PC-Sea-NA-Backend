@@ -4,8 +4,11 @@ import mongoose from 'mongoose';
 
 var PersonSchema = new mongoose.Schema({
   name: String,
-  info: String,
-  active: Boolean
+  sex: String,
+  resident: String,
+  nationality: String,
+  documentType: String,
+  documentId: String
 });
 
 export default mongoose.model('Person', PersonSchema);

@@ -23,7 +23,6 @@ function onConnect(socket) {
   require('../api/itinerary/itinerary.socket').register(socket);
   require('../api/route/route.socket').register(socket);
   require('../api/seaport/seaport.socket').register(socket);
-  require('../api/staff/staff.socket').register(socket);  
 }
 
 export default function(socketio) {

@@ -13,7 +13,7 @@ var UserSchema = new Schema({
   },
   role: {
     type: String,
-    default: 'user'
+    default: 'auxiliar'
   },
   password: {
     type: String,

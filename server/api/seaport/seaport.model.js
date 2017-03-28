@@ -3,9 +3,7 @@
 import mongoose from 'mongoose';
 
 var SeaportSchema = new mongoose.Schema({
-  name: String,
-  info: String,
-  active: Boolean
+  name: String
 });
 
 export default mongoose.model('Seaport', SeaportSchema);
