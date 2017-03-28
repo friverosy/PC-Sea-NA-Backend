@@ -12,6 +12,11 @@ export default function(app) {
   app.use('/api/users', require('./api/user'));
   app.use('/api/people', require('./api/person'));
   app.use('/api/registers', require('./api/register'));
+  app.use('/api/manifests', require('./api/manifest'));
+  //app.use('/api/itineraries', require('./api/itinerary'));
+  //app.use('/api/rutes', require('./api/rut'));
+  //app.use('/api/seaports', require('./api/seaport'));
+  //app.use('/api/staffs', require('./api/staff'));
 
   app.use('/auth', require('./auth').default);
 
