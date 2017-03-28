@@ -4,35 +4,28 @@ import crypto from 'crypto';
 mongoose.Promise = require('bluebird');
 import mongoose, {Schema} from 'mongoose';
 
-import _ from 'lodash';
-
-import config from '../../config/environment';
-
 var UserSchema = new Schema({
-  name:      { type: String },
-  rut:       { type: String, lowercase: true, required: true },
-  companies: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Company' }] },
-  role:      { type: String, enum: config.userRoles, default: 'user' },
-  password:  { type: String, required: true },
-  salt:      { type: String },
-  
-  //deprecated
-  company:  { type: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' } },
-  sectors:  { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Sector' }] }
+  name: String,
+  email: {
+    type: String,
+    lowercase: true,
+    required: true
+  },
+  role: {
+    type: String,
+    default: 'user'
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  provider: String,
+  salt: String
 });
 
-UserSchema.index({ rut: 1 }, { unique: true });
-UserSchema.index({ company: 1 });
-UserSchema.index({ sector: 1 });
-
-//-------------------------------------------------------
-//                  Getters/Setters
-//-------------------------------------------------------
-
-
-//-------------------------------------------------------
-//                     Virtuals
-//-------------------------------------------------------
+/**
+ * Virtuals
+ */
 
 // Public profile information
 UserSchema
@@ -54,16 +47,16 @@ UserSchema
     };
   });
 
-//-------------------------------------------------------
-//                      Validations
-//-------------------------------------------------------
-  
-// Validate empty rut
+/**
+ * Validations
+ */
+
+// Validate empty email
 UserSchema
-  .path('rut')
-  .validate(function(rut) {
-    return rut.length;
-  }, 'rut cannot be blank');
+  .path('email')
+  .validate(function(email) {
+    return email.length;
+  }, 'Email cannot be blank');
 
 // Validate empty password
 UserSchema
@@ -72,11 +65,11 @@ UserSchema
     return password.length;
   }, 'Password cannot be blank');
 
-// Validate rut is not taken
+// Validate email is not taken
 UserSchema
-  .path('rut')
+  .path('email')
   .validate(function(value, respond) {
-    return this.constructor.findOne({ rut: value }).exec()
+    return this.constructor.findOne({ email: value }).exec()
       .then(user => {
         if(user) {
           if(this.id === user.id) {
@@ -89,7 +82,7 @@ UserSchema
       .catch(function(err) {
         throw err;
       });
-  }, 'The specified rut address is already in use.');
+  }, 'The specified email address is already in use.');
 
 var validatePresenceOf = function(value) {
   return value && value.length;
@@ -125,11 +118,9 @@ UserSchema
     });
   });
 
-
-//-------------------------------------------------------
-//                      Methods/Statics
-//-------------------------------------------------------
-
+/**
+ * Methods
+ */
 UserSchema.methods = {
   /**
    * Authenticate - check if the passwords are the same
@@ -167,7 +158,7 @@ UserSchema.methods = {
    */
   makeSalt(byteSize, callback) {
     var defaultByteSize = 16;
-    
+
     if(typeof arguments[0] === 'function') {
       callback = arguments[0];
       byteSize = defaultByteSize;
@@ -212,33 +203,17 @@ UserSchema.methods = {
     var salt = new Buffer(this.salt, 'base64');
 
     if(!callback) {
-      return crypto.pbkdf2Sync(password, salt, defaultIterations, defaultKeyLength, 'sha1') 
-        .toString('base64'); /* eslint no-sync:0 */
+      return crypto.pbkdf2Sync(password, salt, defaultIterations, defaultKeyLength)
+        .toString('base64');
     }
 
-    return crypto.pbkdf2(password, salt, defaultIterations, defaultKeyLength, 'sha1', (err, key) => {
+    return crypto.pbkdf2(password, salt, defaultIterations, defaultKeyLength, (err, key) => {
       if(err) {
         return callback(err);
       } else {
         return callback(null, key.toString('base64'));
       }
     });
-  },
-  
-  getCompanies() {
-    return mongoose.model('Company').find()
-      .where('_id').in(this.companies)
-    .exec();
-  },
-  
-  getCompanySectors(companyId) {
-    if(!_.includes(this.companies.map(c => c.toString()), companyId)) {
-      return Promise.resolve([]);
-    }
-    
-    return mongoose.model('Sector').find()
-      .where('company').in([companyId])
-      .exec();
   }
 };
 

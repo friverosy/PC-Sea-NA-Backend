@@ -4,7 +4,7 @@
 
 'use strict';
 
-import SectorEvents from './sector.events';
+import ThingEvents from './thing.events';
 
 // Model events to emit
 var events = ['save', 'remove'];
@@ -13,9 +13,9 @@ export function register(socket) {
   // Bind model events to socket events
   for(var i = 0, eventsLength = events.length; i < eventsLength; i++) {
     var event = events[i];
-    var listener = createListener(`sector:${event}`, socket);
+    var listener = createListener(`thing:${event}`, socket);
 
-    SectorEvents.on(event, listener);
+    ThingEvents.on(event, listener);
     socket.on('disconnect', removeListener(event, listener));
   }
 }
@@ -29,6 +29,6 @@ function createListener(event, socket) {
 
 function removeListener(event, listener) {
   return function() {
-    SectorEvents.removeListener(event, listener);
+    ThingEvents.removeListener(event, listener);
   };
 }

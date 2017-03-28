@@ -1,14 +1,14 @@
 import passport from 'passport';
 import {Strategy as LocalStrategy} from 'passport-local';
 
-function localAuthenticate(User, rut, password, done) {
+function localAuthenticate(User, email, password, done) {
   User.findOne({
-    rut: rut.toLowerCase()
+    email: email.toLowerCase()
   }).exec()
     .then(user => {
       if(!user) {
         return done(null, false, {
-          message: 'This rut is not registered.'
+          message: 'This email is not registered.'
         });
       }
       user.authenticate(password, function(authError, authenticated) {
@@ -27,9 +27,9 @@ function localAuthenticate(User, rut, password, done) {
 
 export function setup(User/*, config*/) {
   passport.use(new LocalStrategy({
-    usernameField: 'rut',
+    usernameField: 'email',
     passwordField: 'password' // this is the virtual field on the model
-  }, function(rut, password, done) {
-    return localAuthenticate(User, rut, password, done);
+  }, function(email, password, done) {
+    return localAuthenticate(User, email, password, done);
   }));
 }

@@ -14,7 +14,6 @@ function validationError(res, statusCode) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
-    console.error(err.stack);
     return res.status(statusCode).send(err);
   };
 }
@@ -27,7 +26,6 @@ export function index(req, res) {
   return User.find({}, '-salt -password').exec()
     .then(users => {
       res.status(200).json(users);
-      return null;
     })
     .catch(handleError(res));
 }
@@ -41,10 +39,10 @@ export function create(req, res) {
   newUser.role = 'user';
   newUser.save()
     .then(function(user) {
-      var token = jwt.sign({ _id: user._id }, config.secrets.session, {});
-      
+      var token = jwt.sign({ _id: user._id }, config.secrets.session, {
+        expiresIn: 60 * 60 * 5
+      });
       res.json({ token });
-      return null;
     })
     .catch(validationError(res));
 }
@@ -55,14 +53,10 @@ export function create(req, res) {
 export function show(req, res, next) {
   var userId = req.params.id;
 
-  return User.findOne({ _id: userId })
-    .populate('company')
-    .exec()
+  return User.findById(userId).exec()
     .then(user => {
       if(!user) {
-        res.status(404).end();
-        
-        return null;
+        return res.status(404).end();
       }
       res.json(user.profile);
     })
@@ -77,8 +71,6 @@ export function destroy(req, res) {
   return User.findByIdAndRemove(req.params.id).exec()
     .then(function() {
       res.status(204).end();
-      
-      return null;
     })
     .catch(handleError(res));
 }
@@ -98,14 +90,10 @@ export function changePassword(req, res) {
         return user.save()
           .then(() => {
             res.status(204).end();
-            
-            return null;
           })
           .catch(validationError(res));
       } else {
-        res.status(403).end();
-        
-        return null;
+        return res.status(403).end();
       }
     });
 }
@@ -116,49 +104,14 @@ export function changePassword(req, res) {
 export function me(req, res, next) {
   var userId = req.user._id;
 
-  return User.findOne({ _id: userId }, '-salt -password')
-    .populate('company')
-    .exec()
+  return User.findOne({ _id: userId }, '-salt -password').exec()
     .then(user => { // don't ever give out the password or salt
       if(!user) {
         return res.status(401).end();
       }
       res.json(user);
-      
-      return null;
     })
     .catch(err => next(err));
-}
-
-
-export function getSectors(req, res) {
-  let user = req.user;
-  
-  user.populate('sectors', function(err, userWithSectors) {
-    if(err) return handleError(res); 
-    
-    res.status(200).json(userWithSectors.sectors);
-  });
-}
-
-export function getCompanies(req, res) {
-  let user = req.user;
-    
-  user.getCompanies()
-    .then(companies => res.status(200).json(companies))
-    .catch(handleError(res));
-}
-
-export function getUserCompanySectors(req, res) {
-  let user = req.user;
-    
-  user.getCompanySectors(req.params.companyId)
-    .then(sectors => res.status(200).json(sectors))
-    .catch(handleError(res));  
-}
-
-export function importUsers(req, res) {
-  return res.status(200).end();
 }
 
 /**

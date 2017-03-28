@@ -16,17 +16,15 @@ var validateJwt = expressJwt({
 export function isAuthenticated() {
   return compose()
     // Validate jwt
-    .use(function(req, res, next) {      
+    .use(function(req, res, next) {
       // allow access_token to be passed through query parameter as well
       if(req.query && req.query.hasOwnProperty('access_token')) {
         req.headers.authorization = `Bearer ${req.query.access_token}`;
       }
-      
-      // IE11 forgets to set Authorization header sometimes. Pull from cookie instead.
+     // IE11 forgets to set Authorization header sometimes. Pull from cookie instead.
       if(req.query && typeof req.headers.authorization === 'undefined') {
         req.headers.authorization = `Bearer ${req.cookies.token}`;
       }
-      
       validateJwt(req, res, next);
     })
     // Attach user to request
@@ -36,11 +34,8 @@ export function isAuthenticated() {
           if(!user) {
             return res.status(401).end();
           }
-          
           req.user = user;
           next();
-          
-          return null;
         })
         .catch(err => next(err));
     });
@@ -69,7 +64,9 @@ export function hasRole(roleRequired) {
  * Returns a jwt token signed by the app secret
  */
 export function signToken(id, role) {
-  return jwt.sign({ _id: id, role }, config.secrets.session, { });
+  return jwt.sign({ _id: id, role }, config.secrets.session, {
+    expiresIn: 60 * 60 * 5
+  });
 }
 
 /**

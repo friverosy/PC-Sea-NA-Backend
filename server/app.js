@@ -29,10 +29,6 @@ var socketio = require('socket.io')(server, {
   serveClient: config.env !== 'production',
   path: '/socket.io-client'
 });
-
-//Put the reference to socketio inside of app
-app.locals.socketio = socketio;
-
 require('./config/socketio').default(socketio);
 require('./config/express').default(app);
 require('./routes').default(app);
@@ -40,7 +36,7 @@ require('./routes').default(app);
 // Start server
 function startServer() {
   app.server = server.listen(config.port, config.ip, function() {
-    console.log('=== Express server listening on port %d, in %s mode', config.port, app.get('env'));
+    console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
   });
 }
 

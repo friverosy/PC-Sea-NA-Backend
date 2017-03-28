@@ -163,13 +163,15 @@ gulp.task('transpile:server', () => {
         .pipe(gulp.dest(`${paths.dist}/${serverPath}`));
 });
 
+gulp.task('lint:scripts', cb => runSequence(['lint:scripts:server'], cb));
 
-gulp.task('lint', cb => runSequence(['lint:scripts:server'], cb));
 
 gulp.task('lint:scripts:server', () => {
     return gulp.src(_.union(paths.server.scripts, _.map(paths.server.test, blob => '!' + blob)))
         .pipe(lintServerScripts());
 });
+
+
 
 gulp.task('lint:scripts:serverTest', () => {
     return gulp.src(paths.server.test)
@@ -227,7 +229,7 @@ gulp.task('watch', () => {
 gulp.task('serve', cb => {
     runSequence(
         [
-            'lint',
+            'lint:scripts',
             'env:all'
         ],
         ['start:server'],
@@ -239,7 +241,7 @@ gulp.task('serve', cb => {
 gulp.task('serve:debug', cb => {
     runSequence(
         [
-            'lint',
+            'lint:scripts',
             'env:all'
         ],
         'start:inspector',
@@ -262,9 +264,10 @@ gulp.task('test', cb => {
     return runSequence('test:server', cb);
 });
 
-gulp.task('cov', cb => {
+gulp.task('coverage', cb => {
     return runSequence('test:server:coverage', cb);
 });
+
 
 gulp.task('test:server', cb => {
     runSequence(
@@ -335,8 +338,6 @@ gulp.task('build', cb => {
 });
 
 gulp.task('clean:dist', () => del([`${paths.dist}/!(.git*|.openshift|Procfile)**`], {dot: true}));
-
-
 
 gulp.task('copy:server', () => {
     return gulp.src([

@@ -5,8 +5,7 @@
 'use strict';
 
 import express from 'express';
-import favicon from 'serve-favicon'; /* eslint no-unused-vars:0 */
-import cors from 'cors';
+import favicon from 'serve-favicon';
 import morgan from 'morgan';
 import shrinkRay from 'shrink-ray';
 import bodyParser from 'body-parser';
@@ -20,11 +19,18 @@ import passport from 'passport';
 import session from 'express-session';
 import connectMongo from 'connect-mongo';
 import mongoose from 'mongoose';
-
 var MongoStore = connectMongo(session);
 
 export default function(app) {
-  var env = app.get('env'); /* eslint no-process-env: 0 */
+  var env = app.get('env');
+
+  if(env === 'development' || env === 'test') {
+    //app.use(express.static(path.join(config.root, '.tmp')));
+  }
+
+  if(env === 'production') {
+    //app.use(favicon(path.join(config.root, 'client', 'favicon.ico')));
+  }
 
   app.set('appPath', path.join(config.root, 'client'));
   app.use(express.static(app.get('appPath')));
@@ -40,12 +46,6 @@ export default function(app) {
   app.use(cookieParser());
   app.use(passport.initialize());
 
-  // Enable CORS
-  app.use(cors({
-    origin: true,
-    credentials: true,
-    exposedHeaders: 'X-Pagination-Count,X-Pagination-Pages,X-Pagination-Page,X-Pagination-Limit'
-  }));
 
   // Persist sessions with MongoStore / sequelizeStore
   // We need to enable sessions for passport-twitter because it's an
@@ -74,6 +74,10 @@ export default function(app) {
       },
       xssProtection: true
     }));
+  }
+
+  if(env === 'development') {
+
   }
 
   if(env === 'development' || env === 'test') {

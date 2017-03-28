@@ -7,7 +7,7 @@ var genUser = function() {
   user = new User({
     provider: 'local',
     name: 'Fake User',
-    rut: '1234567-7',
+    email: 'test@example.com',
     password: 'password'
   });
   return user;
@@ -40,19 +40,19 @@ describe('User Model', function() {
       })).to.be.rejected;
   });
 
-  describe('#rut', function() {
-    it('should fail when saving with a blank rut', function() {
-      user.rut = '';
+  describe('#email', function() {
+    it('should fail when saving with a blank email', function() {
+      user.email = '';
       return expect(user.save()).to.be.rejected;
     });
 
-    it('should fail when saving with a null rut', function() {
-      user.rut = null;
+    it('should fail when saving with a null email', function() {
+      user.email = null;
       return expect(user.save()).to.be.rejected;
     });
 
-    it('should fail when saving without an rut', function() {
-      user.rut = undefined;
+    it('should fail when saving without an email', function() {
+      user.email = undefined;
       return expect(user.save()).to.be.rejected;
     });
   });
