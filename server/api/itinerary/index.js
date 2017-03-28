@@ -12,4 +12,8 @@ router.put('/:id', controller.upsert);
 router.patch('/:id', controller.patch);
 router.delete('/:id', controller.destroy);
 
+// router.get('/:id/routes', controller.getRoutes);
+// router.get('/:id/manifests', controller.getManifests);
+// router.get('/:id/registers', controller.getRegisters);
+
 module.exports = router;

@@ -115,3 +115,25 @@ export function destroy(req, res) {
     .then(removeEntity(res))
     .catch(handleError(res));
 }
+
+//
+// export function getRoutes(req, res) {
+//   return Itinerary.getRoutes(req.params.id).exec()
+//     .then(handleEntityNotFound(res))
+//     .then(removeEntity(res))
+//     .catch(handleError(res));
+// }
+//
+// export function getManifests(req, res) {
+//   return Itinerary.getManifests(req.params.id).exec()
+//     .then(handleEntityNotFound(res))
+//     .then(removeEntity(res))
+//     .catch(handleError(res));
+// }
+//
+// export function getRegisters(req, res) {
+//   return Itinerary.getRegisters(req.params.id).exec()
+//     .then(handleEntityNotFound(res))
+//     .then(removeEntity(res))
+//     .catch(handleError(res));
+// }
