@@ -16,7 +16,14 @@ function onConnect(socket) {
   });
 
   // Insert sockets below
+  require('../api/user/user.socket').register(socket);
+  require('../api/person/person.socket').register(socket);
   require('../api/register/register.socket').register(socket);
+  require('../api/manifest/manifest.socket').register(socket);
+  require('../api/itinerary/itinerary.socket').register(socket);
+  require('../api/route/route.socket').register(socket);
+  require('../api/seaport/seaport.socket').register(socket);
+  require('../api/staff/staff.socket').register(socket);  
 }
 
 export default function(socketio) {
