@@ -80,6 +80,15 @@ export function show(req, res) {
 
 // Creates a new Seaport in the DB
 export function create(req, res) {
+  
+  let requiredBodyArgs = ['locationId', 'locationName'];
+  
+  requiredBodyArgs.forEach(arg => {
+    if (!req.body[arg]) {
+      return res.status(400).json({ messsage: `missing attribute: ${arg}`});
+    }
+  });
+  
   return Seaport.create(req.body)
     .then(respondWithResult(res, 201))
     .catch(handleError(res));

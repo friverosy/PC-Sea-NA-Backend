@@ -6,10 +6,10 @@ var RegisterSchema = new mongoose.Schema({
   state: String,
   isOnboard: Boolean,
   isDenied: Boolean,
-  seaport: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport'},
-  person: { type: mongoose.Schema.Types.ObjectId, ref: 'Person'},
+  
   resolvedRegister: { type: mongoose.Schema.Types.ObjectId, ref: 'Register' },
-  itinerary: { type: mongoose.Schema.Types.ObjectId, ref: 'Itinerary' }
+  person: { type: mongoose.Schema.Types.ObjectId, ref: 'Person'},
+  manifest: { type: mongoose.Schema.Types.ObjectId, ref: 'Manifest' }
 });
 
 export default mongoose.model('Register', RegisterSchema);

@@ -14,7 +14,6 @@ export default function(app) {
   app.use('/api/registers', require('./api/register'));
   app.use('/api/manifests', require('./api/manifest'));
   app.use('/api/itineraries', require('./api/itinerary'));
-  app.use('/api/routes', require('./api/route'));
   app.use('/api/seaports', require('./api/seaport'));
 
   app.use('/auth', require('./auth').default);

@@ -3,7 +3,9 @@
 import mongoose from 'mongoose';
 
 var SeaportSchema = new mongoose.Schema({
-  name: String
+  name: String,
+  locationId: String,
+  locationName: String
 });
 
 export default mongoose.model('Seaport', SeaportSchema);
