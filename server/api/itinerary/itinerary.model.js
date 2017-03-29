@@ -9,6 +9,7 @@ import Routes from '../manifest/manifest.model';
 var ItinerarySchema = new mongoose.Schema({
   refId: Number,
   name: String,
+  
   depart: Date,
   arrival: Date
 });

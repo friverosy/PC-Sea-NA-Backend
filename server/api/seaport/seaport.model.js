@@ -3,7 +3,6 @@
 import mongoose from 'mongoose';
 
 var SeaportSchema = new mongoose.Schema({
-  name: String,
   locationId: String,
   locationName: String
 });

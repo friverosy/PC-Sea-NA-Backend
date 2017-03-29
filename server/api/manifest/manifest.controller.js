@@ -89,7 +89,7 @@ export function create(req, res) {
     }
   });
   
-  return Manifest.create(req.body)
+  return Manifest.createManifest(req.body)
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
