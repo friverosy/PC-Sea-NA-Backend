@@ -54,20 +54,34 @@ def getUpdatedManifest(itinerary_id, port_id, update_time):
     return manifest
 
 def postItinerary(itinerary):
-    print itinerary
+    #print itinerary
 
-    url_nav_itinerary = NAV_API_URL = 'itineraries/'
-    response = request.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV}
+    url_nav_itinerary = NAV_API_URL + 'itineraries/'
+    response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+    #print json.loads(response.text)['op']['_id']
+
+    return json.loads(response.text)['op']['_id']
+
 
 def postPort(port):
-    print port
-    #url_nav_port = NAV_API_URL = 'seaports/'
-    #response = request.post(url_nav_port, data={}, headers={'Authorization':'Baerer ' + TOKEN_NAV}
+    #print port
 
-def postManifest(manifest):
-    print manifest
-    #url_nav_manifest = NAV_API_URL = 'manifests/'
-    #response = request.post(url_nav_manifest, data={}, headers={'Authorization':'Baerer ' + TOKEN_NAV}
+    url_nav_port = NAV_API_URL + 'seaports/'
+    response = requests.post(url_nav_port, data={'locationId':port['id_ubicacion'], 'locationName':port['nombre_ubicacion']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+def postManifest(manifest, itineraryObjectId):
+    for m in manifest['manifiesto_pasajero']:
+        print m
+        print ''
+        print ''
+
+        url_nav_manifest = NAV_API_URL + 'manifests/'
+        response = requests.post(url_nav_manifest, data={'name':m['nombre_pasajero'], 'sex':m['sexo'], 'resident':m['residente'], 
+                                                        'nationality':m['nacionalidad'], 'documentId':m['codigo_pasajero'], 
+                                                        'documentType':m['nombre_cod_documento'], 'reservationId':m['id_detalle_reserva'], 
+                                                        'reservationStatus':m['estado_detalle_reserva'], 'ticketId':m['ticket'], 'originName':m['origen'], 
+                                                        'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'd:u:h', ['date=', 'update=', 'help='])
@@ -91,7 +105,7 @@ for opt, arg in opts:
             for itinerary in itineraries[keyword]:
        
                 # POST itinerary
-                postItinerary(itinerary)
+                itineraryObjectId = postItinerary(itinerary)
  
                 # GET ports
                 ports = getPorts(itinerary["id_itinerario"])
@@ -101,9 +115,12 @@ for opt, arg in opts:
                     for p in ports[port_id]:
 
                         # POST Port
+                        postPort(p)
 
                         # POST Manifest
                         manifest = getInitialManifest(itinerary["id_itinerario"], p['id_ubicacion'])
+
+                        postManifest(manifest, itineraryObjectId)
 
     elif opt in ("-u", "--update"):
         update_time = arg
