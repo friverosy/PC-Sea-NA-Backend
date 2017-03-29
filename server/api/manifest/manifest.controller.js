@@ -59,6 +59,7 @@ function handleEntityNotFound(res) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
+    console.log(`error: ${JSON.stringify(err)}`);
     res.status(statusCode).send(err);
   };
 }
@@ -81,17 +82,24 @@ export function show(req, res) {
 // Creates a new Manifest in the DB
 export function create(req, res) {
   
-  let requiredBodyArgs = ['itinerary', 'seaport'];
   
-  requiredBodyArgs.forEach(arg => {
-    if (!req.body[arg]) {
-      return res.status(400).json({ messsage: `missing attribute: ${arg}`});
-    }
-  });
+  // TODO: implement person creation after creating a new manifest
+  // let requiredBodyArgs = ['itinerary', 'seaport'];
+  //
+  // requiredBodyArgs.forEach(arg => {
+  //   if (!req.body[arg]) {
+  //     return res.status(400).json({ messsage: `missing attribute: ${arg}`});
+  //   }
+  // });
   
-  return Manifest.createManifest(req.body)
+  // return Manifest.createManifest(req.body)
+  //   .then(respondWithResult(res, 201))
+  //   .catch(handleError(res));
+  
+  return Manifest.create(req.body)
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
+  
 }
 
 // Upserts the given Manifest in the DB at the specified ID

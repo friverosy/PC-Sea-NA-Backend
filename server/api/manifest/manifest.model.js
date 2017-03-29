@@ -16,8 +16,8 @@ var ManifestSchema = new mongoose.Schema({
 
 
 ManifestSchema.statics = { 
-  createManifest: function(data) { 
-    return Manifest.create(data)
+  createManifest: function(data) {
+    return this.create(data)
       .then(function(manifest){
         let personData = manifest;
         
