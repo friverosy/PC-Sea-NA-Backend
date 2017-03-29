@@ -59,10 +59,14 @@ def postItinerary(itinerary):
     url_nav_itinerary = NAV_API_URL + 'itineraries/'
     response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
-    #print json.loads(response.text)['op']['_id']
+    itineraryObjectId = ''
 
-    return json.loads(response.text)['op']['_id']
+    try:
+        itineraryObjectId = json.loads(response.text)['_id']
+    except:
+        itineraryObjectId = json.loads(response.text)['op']['_id']
 
+    return itineraryObjectId
 
 def postPort(port):
     #print port
