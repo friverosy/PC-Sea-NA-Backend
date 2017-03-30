@@ -59,7 +59,6 @@ function handleEntityNotFound(res) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
-    console.log(`error: ${JSON.stringify(err)}`);
     res.status(statusCode).send(err);
   };
 }

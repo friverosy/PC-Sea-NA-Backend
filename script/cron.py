@@ -117,10 +117,11 @@ for opt, arg in opts:
                 #print 'Getting Initial Manifest Associated to each itinerary and port'
                 for port_id in ports:
                     for p in ports[port_id]:
-
+                        print 'posting port: ' + p['nombre_ubicacion']
                         # POST Port
                         postPort(p)
-
+                        
+                    for p in ports[port_id]:
                         # POST Manifest
                         manifest = getInitialManifest(itinerary["id_itinerario"], p['id_ubicacion'])
 
