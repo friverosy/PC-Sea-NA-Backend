@@ -12,6 +12,7 @@
 
 import jsonpatch from 'fast-json-patch';
 import Register from './register.model';
+import Manifest from '../manifest/manifest.model';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -114,4 +115,26 @@ export function destroy(req, res) {
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(handleError(res));
+}
+
+// Return documentId + status for an specific port
+export function status(req, res) {
+  console.log('query.seaport');
+  console.log(req.query.seaport);
+  console.log('query.itinerary');
+  console.log(req.query.itinerary);
+  
+  return Manifest.find()
+  .where('itinerary')
+  .equals(req.query.itinerary)
+  .then(function(manifests){
+    return Register.find()
+    .populate('person')
+    .where('manifest')
+    .in(manifests.map(m => m._id))
+    .where('seaport')
+    .equals(req.query.seaport)
+  })
+  .then(respondWithResult(res, 201))
+  .catch(handleError(res));;
 }
