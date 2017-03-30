@@ -3,9 +3,9 @@
 import mongoose from 'mongoose';
 
 var RegisterSchema = new mongoose.Schema({
-  state: String,
-  isOnboard: Boolean,
-  isDenied: Boolean,
+  state: { type: String, enum: ['pending', 'onboard'], default: 'pending' },
+  isOnboard: { type: Boolean, default: false },
+  isDenied: { type: Boolean, default: false },
   
   resolvedRegister: { type: mongoose.Schema.Types.ObjectId, ref: 'Register' },
   person: { type: mongoose.Schema.Types.ObjectId, ref: 'Person'},

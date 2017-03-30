@@ -80,26 +80,10 @@ export function show(req, res) {
 }
 
 // Creates a new Manifest in the DB
-export function create(req, res) {
-  
-  
-  // TODO: implement person creation after creating a new manifest
-  // let requiredBodyArgs = ['itinerary', 'seaport'];
-  //
-  // requiredBodyArgs.forEach(arg => {
-  //   if (!req.body[arg]) {
-  //     return res.status(400).json({ messsage: `missing attribute: ${arg}`});
-  //   }
-  // });
-  
-  // return Manifest.createManifest(req.body)
-  //   .then(respondWithResult(res, 201))
-  //   .catch(handleError(res));
-  
-  return Manifest.create(req.body)
+export function create(req, res) {   
+  return Manifest.createManifest(req.body)
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
-  
 }
 
 // Upserts the given Manifest in the DB at the specified ID
@@ -108,7 +92,6 @@ export function upsert(req, res) {
     delete req.body._id;
   }
   return Manifest.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true}).exec()
-
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
