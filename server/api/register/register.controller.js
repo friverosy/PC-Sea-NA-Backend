@@ -125,15 +125,23 @@ export function status(req, res) {
   console.log(req.query.itinerary);
   
   return Manifest.find()
-  .where('itinerary')
-  .equals(req.query.itinerary)
+  .populate( 'itinerary', null, { refId: req.query.itinerary } )
   .then(function(manifests){
-    return Register.find()
-    .populate('person')
-    .where('manifest')
-    .in(manifests.map(m => m._id))
-    .where('seaport')
-    .equals(req.query.seaport)
+    return Register.find()    
+            .populate({
+              path: 'person',
+              match: { manifest: { $in: manifests.map(m => m._id) } }
+            })
+            .lean()
+            .exec()
+            .then(function(registers) {
+              return registers.map(r => { 
+                return { 
+                  documentId: r.person.documentId, 
+                  state: r.state 
+                }
+              });
+            })
   })
   .then(respondWithResult(res, 201))
   .catch(handleError(res));;

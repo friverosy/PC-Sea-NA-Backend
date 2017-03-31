@@ -20,6 +20,7 @@ var ManifestSchema = new mongoose.Schema({
 
 ManifestSchema.statics = { 
   createManifest: function(data) {
+    let Manifest = this;
     return Promise.all([
       Seaport.find().where('locationName').equals(new RegExp(`^${data.originName}`, 'i')).exec(),
       Seaport.find().where('locationName').equals(new RegExp(`^${data.destinationName}`, 'i')).exec()
@@ -38,7 +39,7 @@ ManifestSchema.statics = {
         throw new Exception(`no seaports with locationName = ${data.originName} found`);
       }
       
-      return this.create(data)
+      return Manifest.create(data)
         .then(function(newManifest){
           return Person.create({
             name: data.name,
@@ -47,11 +48,13 @@ ManifestSchema.statics = {
             nationality: data.nationality,
             documentId: data.documentId,
             documentType: data.documentType,
+            manifest: newManifest._id
           })
           .then(function(newPerson){
             return Register.create({
               person: newPerson._id,
-              manifest: newManifest._id
+              manifest: newManifest._id,
+              seaport: origin
             })
           })
           .then(function(newRegister){
