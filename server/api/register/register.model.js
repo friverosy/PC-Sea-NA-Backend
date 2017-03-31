@@ -7,10 +7,10 @@ var RegisterSchema = new mongoose.Schema({
   isOnboard: { type: Boolean, default: false },
   isDenied: { type: Boolean, default: false },
   
-  resolvedRegister: { type: mongoose.Schema.Types.ObjectId, ref: 'Register' },
   person: { type: mongoose.Schema.Types.ObjectId, ref: 'Person'},
   manifest: { type: mongoose.Schema.Types.ObjectId, ref: 'Manifest' },
-  seaport: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' }
+  seaportCI: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
+  seaportCO: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' }
 });
 
 export default mongoose.model('Register', RegisterSchema);

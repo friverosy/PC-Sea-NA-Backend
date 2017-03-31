@@ -54,7 +54,7 @@ ManifestSchema.statics = {
             return Register.create({
               person: newPerson._id,
               manifest: newManifest._id,
-              seaport: origin
+              seaportCI: origin
             })
           })
           .then(function(newRegister){
