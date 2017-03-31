@@ -3,7 +3,7 @@
 import mongoose from 'mongoose';
 
 var RegisterSchema = new mongoose.Schema({
-  state: { type: String, enum: ['pending', 'onboard'], default: 'pending' },
+  state: { type: String, enum: ['pending', 'checkin', 'checkout'], default: 'pending' },
   isOnboard: { type: Boolean, default: false },
   isDenied: { type: Boolean, default: false },
   
