@@ -118,12 +118,7 @@ export function destroy(req, res) {
 }
 
 // Return documentId + status for an specific port
-export function status(req, res) {
-  console.log('query.seaport');
-  console.log(req.query.seaport);
-  console.log('query.itinerary');
-  console.log(req.query.itinerary);
-  
+export function status(req, res) {  
   return Manifest.find()
   .populate( 'itinerary', null, { refId: req.query.itinerary } )
   .then(function(manifests){
