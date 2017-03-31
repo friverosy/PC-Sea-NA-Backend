@@ -12,6 +12,7 @@
 
 import jsonpatch from 'fast-json-patch';
 import Manifest from './manifest.model';
+import Person from '../person/person.model';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -59,13 +60,43 @@ function handleEntityNotFound(res) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
+    console.error(err);
     res.status(statusCode).send(err);
   };
 }
 
 // Gets a list of Manifests
 export function index(req, res) {
-  return Manifest.find().exec()
+  let baseQuery = Manifest.find();
+
+  if (req.query.itinerary) {
+    console.log(`filtering by refId: ${req.query.itinerary}`);
+    baseQuery.populate('itinerary', null, { refId: req.query.itinerary });
+  } else {
+    baseQuery.populate('itinerary');
+  }
+  
+  return baseQuery
+    .lean()
+    .exec()
+    .filter(function(manifest){
+      return manifest.itinerary != null;
+    })
+    .map(function(manifest) {
+      return Person.findOne()
+        .where('manifest').equals(manifest._id)
+        .exec()
+        .then(function(person){
+          return {
+            documentId: person.documentId,
+            name: person.name,
+            origin: manifest.origin,
+            destination: manifest.destination,
+            refId: manifest.itinerary.refId,
+          }
+        });
+        
+    })
     .then(respondWithResult(res))
     .catch(handleError(res));
 }

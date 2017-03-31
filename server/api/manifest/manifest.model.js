@@ -2,6 +2,7 @@
 
 import Promise from 'bluebird';
 import mongoose from 'mongoose';
+mongoose.Promise = require('bluebird');
 
 import Seaport from '../seaport/seaport.model';
 import Register from '../register/register.model';
