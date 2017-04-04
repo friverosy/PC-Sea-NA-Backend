@@ -67,20 +67,24 @@ function handleError(res, statusCode) {
 
 // Gets a list of Manifests
 export function index(req, res) {
-  let baseQuery = Manifest.find();
+  let baseQuery = Manifest.find().populate('itinerary');
 
-  if (req.query.itinerary) {
-    console.log(`filtering by refId: ${req.query.itinerary}`);
-    baseQuery.populate('itinerary', null, { refId: req.query.itinerary });
-  } else {
-    baseQuery.populate('itinerary');
-  }
+  // if (req.query.itinerary) {
+  //   console.log(`filtering by refId: ${req.query.itinerary}`);
+  //   baseQuery.populate('itinerary', null, { refId: req.query.itinerary });
+  // } else {
+  //   baseQuery.populate('itinerary');
+  // }
   
   return baseQuery
     .lean()
     .exec()
     .filter(function(manifest){
-      return manifest.itinerary != null;
+      if (req.query.itinerary) {
+        return manifest.itinerary.refId == req.query.itinerary
+      } else {
+        return manifest.itinerary != null; 
+      }
     })
     .map(function(manifest) {
       return Person.findOne()
@@ -95,7 +99,6 @@ export function index(req, res) {
             refId: manifest.itinerary.refId,
           }
         });
-        
     })
     .then(respondWithResult(res))
     .catch(handleError(res));

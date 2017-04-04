@@ -32,14 +32,14 @@ ManifestSchema.statics = {
       console.log(`requesting data.originName = ${data.originName}. Got the following = ${JSON.stringify(candidateOrigins)}`);
       console.log(`requesting data.destinationName = ${data.destinationName}. Got the following = ${JSON.stringify(candidateDestinations)}`);
       
-      let origin      = candidateOrigins[0] ? candidateOrigins[0]._id : null;
-      let destination = candidateDestinations[0] ? candidateDestinations[0]._id : null;
+      data.origin      = candidateOrigins[0] ? candidateOrigins[0]._id : null;
+      data.destination = candidateDestinations[0] ? candidateDestinations[0]._id : null;
       
-      if (!origin || !destination) {
+      if (!data.origin || !data.destination) {
         console.log(`no seaports with name = ${data.originName}. Manifest and related data will not be created`);
         throw new Exception(`no seaports with locationName = ${data.originName} found`);
       }
-      
+
       return Manifest.create(data)
         .then(function(newManifest){
           return Person.create({
@@ -55,7 +55,7 @@ ManifestSchema.statics = {
             return Register.create({
               person: newPerson._id,
               manifest: newManifest._id,
-              seaportCI: origin
+              seaportCheckin: data.origin
             })
           })
           .then(function(newRegister){

@@ -13,6 +13,7 @@
 import jsonpatch from 'fast-json-patch';
 import Register from './register.model';
 import Manifest from '../manifest/manifest.model';
+import * as _ from 'lodash';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -120,18 +121,20 @@ export function destroy(req, res) {
 // Return documentId + status for an specific port
 export function status(req, res) {  
   return Manifest.find()
-  .populate( 'itinerary', null, { refId: req.query.itinerary } )
-  .then(function(manifests){
-    return Register.find()    
-            .populate({
-              path: 'person',
-              match: { manifest: { $in: manifests.map(m => m._id) } }
-            })
+  .populate('itinerary')
+  .lean()
+  .exec()
+  .filter(m => m.itinerary.refId == req.query.itinerary)
+  .then(function(manifests){    
+    return Register.find()
+            .populate('person')
             .lean()
             .exec()
+            .filter(r => _.includes(manifests.map(m => m._id.toString()), r.person.manifest.toString()))
             .then(function(registers) {
+              console.log(registers);
               return registers.map(r => { 
-                return { 
+                return {
                   documentId: r.person.documentId, 
                   state: r.state 
                 }
@@ -139,5 +142,5 @@ export function status(req, res) {
             })
   })
   .then(respondWithResult(res, 201))
-  .catch(handleError(res));;
+  .catch(handleError(res));
 }

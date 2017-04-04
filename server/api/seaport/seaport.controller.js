@@ -89,7 +89,7 @@ export function create(req, res) {
     }
   });
   
-  return Seaport.create(req.body)
+  return Seaport.update({ locationId : req.body['locationId'] }, req.body, { upsert : true })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
