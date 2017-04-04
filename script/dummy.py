@@ -32,9 +32,9 @@ def postPort(port):
 
 def postManifest(manifest, itineraryObjectId):
     for m in manifest:
-        print m
-        print ''
-        print ''
+        #print m
+        #print ''
+        #print ''
 
         url_nav_manifest = NAV_API_URL + 'manifests/'
         response = requests.post(url_nav_manifest, data={'name':m['nombre_pasajero'], 'sex':m['sexo'], 'resident':m['residente'],
