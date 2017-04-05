@@ -187,3 +187,42 @@ export function status(req, res) {
   .then(respondWithResult(res, 201))
   .catch(handleError(res));
 }
+
+export function createManualSell(req, res) {
+  
+  // validate required params
+  let requiredParams = [
+    'itinerary',
+    'origin',
+    'destination',
+    'ticketId',
+    'name'
+    'sex'
+    'resident'
+    'nationality'
+    'documentId'
+    'documentType'
+  ];
+ 
+  requiredParams.forEach(function(p){
+    if (!_.includes(requiredParams, p)) {
+      return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
+    }
+  });
+  
+  return Itinerary.findOne({ refId: req.query.itinerary }).exec()
+  .then(function(itinerary){
+    if (!itinerary) {
+      return res.status(400).json({ message: `Itinerary with refId = ${req.query.itinerary}` });
+    }
+        
+    // transform refId into objectId
+    req.body.itinerary = itinerary._id;
+    req.body.isOnboard = true;
+    
+    return Manifest.createManifest(req.body)
+  })
+  .then(respondWithResult(res, 201))
+  .catch(handleError(res));
+  
+}
