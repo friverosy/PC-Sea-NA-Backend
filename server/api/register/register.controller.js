@@ -94,7 +94,7 @@ export function create(req, res) {
   ];
   
   requiredParams.forEach(function(p){
-    if (!_.includes(requiredParams, p)) {
+    if (!_.includes(_.keys(req.body), p)) {
       return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
     }
   });
@@ -193,27 +193,29 @@ export function createManualSell(req, res) {
   // validate required params
   let requiredParams = [
     'itinerary',
-    'origin',
-    'destination',
+    'originName',
+    'destinationName',
     'ticketId',
-    'name'
-    'sex'
-    'resident'
-    'nationality'
-    'documentId'
+    'name',
+    'sex',
+    'resident',
+    'nationality',
+    'documentId',
     'documentType'
   ];
- 
+  
+  console.log(`req.body = ${JSON.stringify(req.body)}`);
   requiredParams.forEach(function(p){
-    if (!_.includes(requiredParams, p)) {
+    if (!_.includes(_.keys(req.body), p)) {
       return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
     }
   });
   
-  return Itinerary.findOne({ refId: req.query.itinerary }).exec()
+  return Itinerary.findOne({ refId: req.body.itinerary }).exec()
   .then(function(itinerary){
     if (!itinerary) {
-      return res.status(400).json({ message: `Itinerary with refId = ${req.query.itinerary}` });
+      throw Error(`Itinerary with refId = ${req.query.itinerary}`)
+      // return res.status(400).json();
     }
         
     // transform refId into objectId
