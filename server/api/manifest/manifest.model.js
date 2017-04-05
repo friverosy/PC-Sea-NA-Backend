@@ -42,15 +42,15 @@ ManifestSchema.statics = {
 
       return Manifest.create(data)
         .then(function(newManifest){
-          return Person.create({
-            name: data.name,
-            sex: data.sex,
-            resident: data.resident,
-            nationality: data.nationality,
-            documentId: data.documentId,
-            documentType: data.documentType,
-            manifest: newManifest._id
-          })
+          return Person.create({ 
+                    name: data.name, 
+                    sex: data.sex, 
+                    resident: data.resident, 
+                    nationality: data.nationality,
+                    documentId: data.documentId, 
+                    documentType: data.documentType, 
+                    manifest: newManifest._id
+                  })
           .then(function(newPerson){
             return Register.create({
               person: newPerson._id,

@@ -10,7 +10,9 @@ var RegisterSchema = new mongoose.Schema({
   person: { type: mongoose.Schema.Types.ObjectId, ref: 'Person'},
   manifest: { type: mongoose.Schema.Types.ObjectId, ref: 'Manifest' },
   seaportCheckin: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
-  seaportCheckout: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' }
+  seaportCheckout: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
+  checkinDate: Date,
+  checkoutDate: Date
 });
 
 export default mongoose.model('Register', RegisterSchema);

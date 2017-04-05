@@ -61,6 +61,7 @@ function handleEntityNotFound(res) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
+    console.error(err);
     res.status(statusCode).send(err);
   };
 }
@@ -82,7 +83,42 @@ export function show(req, res) {
 
 // Creates a new Register in the DB
 export function create(req, res) {
-  return Register.create(req.body)
+  
+  let requiredParams = [
+    'person',
+    'seaport',
+    'manifest',
+    'state'
+  ];
+  
+  requiredParams.forEach(function(p){
+    if (!_.includes(requiredParams, p)) {
+      return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
+    }
+  });
+  
+  let baseQuery = {
+    person: req.body.person,
+    manifest: req.body.manifest
+  };
+  
+  let registerData = {
+    state: req.body.state,
+    person: req.body.person,
+    manifest: req.body.manifest,
+  };
+  
+  if (req.body.state === 'checkin') {
+    baseQuery.seaportCheckin = req.body.seaport;
+    registerData.seaportCheckin = req.body.seaport;
+  } else if (req.body.state === 'checkout') {
+    baseQuery.seaportCheckout = req.body.seaport;
+    registerData.seaportCheckout = req.body.seaport;
+  } else {
+    return res.status(401).json({ messsage: `invalid register state: ${req.body.state}` });
+  }
+  
+  return Register.update(baseQuery, registerData, { upsert: true })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
