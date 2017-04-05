@@ -8,9 +8,7 @@ var PersonSchema = new mongoose.Schema({
   resident: String,
   nationality: String,
   documentType: String,
-  documentId: String,
-  
-  manifest: { type: mongoose.Schema.Types.ObjectId, ref: 'Manifest' }
+  documentId: String
 });
 
 export default mongoose.model('Person', PersonSchema);

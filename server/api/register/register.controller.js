@@ -1,4 +1,4 @@
-/**
+  /**
  * Using Rails-like standard naming convention for endpoints.
  * GET     /api/registers              ->  index
  * POST    /api/registers              ->  create
@@ -13,6 +13,8 @@
 import jsonpatch from 'fast-json-patch';
 import Register from './register.model';
 import Manifest from '../manifest/manifest.model';
+import Itinerary from '../itinerary/itinerary.model';
+
 import * as _ from 'lodash';
 
 function respondWithResult(res, statusCode) {
@@ -156,26 +158,29 @@ export function destroy(req, res) {
 
 // Return documentId + status for an specific port
 export function status(req, res) {  
-  return Manifest.find()
-  .populate('itinerary')
-  .lean()
-  .exec()
-  .filter(m => m.itinerary.refId == req.query.itinerary)
-  .then(function(manifests){    
+  return Itinerary.findOne({ refId: req.query.itinerary }).exec()
+  .then(function(itinerary){
+    console.log(`got itinerary = ${JSON.stringify(itinerary)} from refId = ${req.query.itinerary}`);
+    
+    if (!itinerary) {
+      return res.json([]);
+    }
+    
+    return Manifest.find().where('itinerary').equals(itinerary._id).exec();
+  })
+  .then(function(manifests){
     return Register.find()
-            .populate('person')
-            .lean()
-            .exec()
-            .filter(r => _.includes(manifests.map(m => m._id.toString()), r.person.manifest.toString()))
-            .then(function(registers) {
-              console.log(registers);
-              return registers.map(r => { 
-                return {
-                  documentId: r.person.documentId, 
-                  state: r.state 
-                }
-              });
-            })
+      .populate('person')
+      .where('manifest').in(manifests.map(m => m._id))
+      .exec()
+  })
+  .then(function(registers){
+    return registers.map(r => {
+      return {
+        documentId: r.person.documentId,
+        state: r.state
+      }
+    })
   })
   .then(respondWithResult(res, 201))
   .catch(handleError(res));
