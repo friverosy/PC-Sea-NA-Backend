@@ -107,15 +107,17 @@ export function create(req, res) {
   let registerData = {
     state: req.body.state,
     person: req.body.person,
-    manifest: req.body.manifest,
+    manifest: req.body.manifest
   };
   
   if (req.body.state === 'checkin') {
     baseQuery.seaportCheckin = req.body.seaport;
     registerData.seaportCheckin = req.body.seaport;
+    registerData.checkinDate = req.body.date
   } else if (req.body.state === 'checkout') {
     baseQuery.seaportCheckout = req.body.seaport;
     registerData.seaportCheckout = req.body.seaport;
+    registerData.checkoutDate = req.body.date
   } else {
     return res.status(401).json({ messsage: `invalid register state: ${req.body.state}` });
   }
