@@ -50,11 +50,19 @@ ManifestSchema.statics = {
             documentType: data.documentType
           })
           .then(function(newPerson){
-            return Register.create({
-              person: newPerson._id,
-              manifest: newManifest._id,
-              seaportCheckin: data.origin
-            })
+            if(data.isOnboard)
+              return Register.create({
+                person: newPerson._id,
+                manifest: newManifest._id,
+                seaportCheckin: data.origin,
+                isOnboard: true
+              })
+            else
+              return Register.create({
+                person: newPerson._id,
+                manifest: newManifest._id,
+                seaportCheckin: data.origin
+              })
           })
           .then(function(newRegister){
             return newManifest;
