@@ -104,17 +104,19 @@ export function create(req, res) {
     manifest: req.body.manifest
   };
   
+  var stateId = {0: "pending", 1:"checkin", 2:"checkout"};
+
   let registerData = {
-    state: req.body.state,
+    state: stateId[Number(req.body.state)],
     person: req.body.person,
     manifest: req.body.manifest
   };
   
-  if (req.body.state === 'checkin') {
+  if (Number(req.body.state) === 1) {
     baseQuery.seaportCheckin = req.body.seaport;
     registerData.seaportCheckin = req.body.seaport;
     registerData.checkinDate = req.body.date
-  } else if (req.body.state === 'checkout') {
+  } else if (Number(req.body.state) === 2) {
     baseQuery.seaportCheckout = req.body.seaport;
     registerData.seaportCheckout = req.body.seaport;
     registerData.checkoutDate = req.body.date
@@ -159,7 +161,12 @@ export function destroy(req, res) {
 }
 
 // Return documentId + status for an specific port
-export function status(req, res) {  
+export function status(req, res) {
+  var stateId = [];
+  stateId.pending = 0;
+  stateId.checkin = 1;
+  stateId.checkout = 2;
+
   return Itinerary.findOne({ refId: req.query.itinerary }).exec()
   .then(function(itinerary){
     console.log(`got itinerary = ${JSON.stringify(itinerary)} from refId = ${req.query.itinerary}`);
@@ -180,7 +187,7 @@ export function status(req, res) {
     return registers.map(r => {
       return {
         documentId: r.person.documentId,
-        state: r.state
+        state: stateId[r.state]
       }
     })
   })
