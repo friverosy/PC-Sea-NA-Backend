@@ -21,7 +21,6 @@ function onConnect(socket) {
   require('../api/register/register.socket').register(socket);
   require('../api/manifest/manifest.socket').register(socket);
   require('../api/itinerary/itinerary.socket').register(socket);
-  require('../api/route/route.socket').register(socket);
   require('../api/seaport/seaport.socket').register(socket);
 }
 

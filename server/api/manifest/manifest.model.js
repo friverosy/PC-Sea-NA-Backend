@@ -15,7 +15,8 @@ var ManifestSchema = new mongoose.Schema({
   
   origin: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
   destination: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
-  itinerary: { type: mongoose.Schema.Types.ObjectId, ref: 'Itinerary'}
+  itinerary: { type: mongoose.Schema.Types.ObjectId, ref: 'Itinerary'},
+  register: { type: mongoose.Schema.Types.ObjectId, ref: 'Register' }
 });
 
 ManifestSchema.statics = { 

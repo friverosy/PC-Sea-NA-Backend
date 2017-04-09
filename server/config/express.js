@@ -19,6 +19,8 @@ import passport from 'passport';
 import session from 'express-session';
 import connectMongo from 'connect-mongo';
 import mongoose from 'mongoose';
+import cors from 'cors';
+
 var MongoStore = connectMongo(session);
 
 export default function(app) {
@@ -46,7 +48,13 @@ export default function(app) {
   app.use(cookieParser());
   app.use(passport.initialize());
 
-
+  // Enable CORS
+  app.use(cors({
+    origin: true,
+    credentials: true,
+    exposedHeaders: 'X-Pagination-Count,X-Pagination-Pages,X-Pagination-Page,X-Pagination-Limit'
+  }));
+  
   // Persist sessions with MongoStore / sequelizeStore
   // We need to enable sessions for passport-twitter because it's an
   // oauth 1.0 strategy, and Lusca depends on sessions
