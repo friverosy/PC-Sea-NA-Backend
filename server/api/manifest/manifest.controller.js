@@ -13,6 +13,7 @@
 import jsonpatch from 'fast-json-patch';
 import Manifest from './manifest.model';
 import Person from '../person/person.model';
+import Register from '../register/register.model';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -87,16 +88,17 @@ export function index(req, res) {
       }
     })
     .map(function(manifest) {
-      return Person.findOne()
+      return Register.findOne().populate('person')
         .where('manifest').equals(manifest._id)
         .exec()
-        .then(function(person){
+        .then(function(register){
           return {
-            documentId: person.documentId,
-            name: person.name,
+            personId: register.person._id,
+            documentId: register.person.documentId,
+            name: register.person.name,
             origin: manifest.origin,
             destination: manifest.destination,
-            refId: manifest.itinerary.refId,
+            refId: manifest.itinerary.refId
           }
         });
     })
