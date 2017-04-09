@@ -2,6 +2,7 @@
 
 import Promise from 'bluebird';
 import mongoose from 'mongoose';
+import moment from 'moment';
 mongoose.Promise = require('bluebird');
 
 import Seaport from '../seaport/seaport.model';
@@ -21,6 +22,8 @@ var ManifestSchema = new mongoose.Schema({
 ManifestSchema.statics = { 
   createManifest: function(data) {
     let Manifest = this;
+    let now = new Date();
+
     return Promise.all([
       Seaport.find().where('locationName').equals(new RegExp(`^${data.originName}`, 'i')).exec(),
       Seaport.find().where('locationName').equals(new RegExp(`^${data.destinationName}`, 'i')).exec()
@@ -28,8 +31,8 @@ ManifestSchema.statics = {
     .spread(function(candidateOrigins, candidateDestinations){
       // TODO: ATM getting the first one given the regexp (maybe use JaroWinkler for string distance?)
       
-      console.log(`requesting data.originName = ${data.originName}. Got the following = ${JSON.stringify(candidateOrigins)}`);
-      console.log(`requesting data.destinationName = ${data.destinationName}. Got the following = ${JSON.stringify(candidateDestinations)}`);
+      //console.log(`requesting data.originName = ${data.originName}. Got the following = ${JSON.stringify(candidateOrigins)}`);
+      //console.log(`requesting data.destinationName = ${data.destinationName}. Got the following = ${JSON.stringify(candidateDestinations)}`);
       
       data.origin      = candidateOrigins[0] ? candidateOrigins[0]._id : null;
       data.destination = candidateDestinations[0] ? candidateDestinations[0]._id : null;
@@ -55,6 +58,7 @@ ManifestSchema.statics = {
                 person: newPerson._id,
                 manifest: newManifest._id,
                 seaportCheckin: data.origin,
+                checkinDate: moment(now),
                 isOnboard: true
               })
             else

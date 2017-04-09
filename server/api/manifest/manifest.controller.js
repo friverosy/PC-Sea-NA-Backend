@@ -11,6 +11,7 @@
 'use strict';
 
 import jsonpatch from 'fast-json-patch';
+import moment from 'moment';
 import Manifest from './manifest.model';
 import Person from '../person/person.model';
 import Register from '../register/register.model';
@@ -69,14 +70,8 @@ function handleError(res, statusCode) {
 // Gets a list of Manifests
 export function index(req, res) {
   let baseQuery = Manifest.find().populate('itinerary');
+  console.log(moment(req.query.date));
 
-  // if (req.query.itinerary) {
-  //   console.log(`filtering by refId: ${req.query.itinerary}`);
-  //   baseQuery.populate('itinerary', null, { refId: req.query.itinerary });
-  // } else {
-  //   baseQuery.populate('itinerary');
-  // }
-  
   return baseQuery
     .lean()
     .exec()
@@ -88,19 +83,38 @@ export function index(req, res) {
       }
     })
     .map(function(manifest) {
-      return Register.findOne().populate('person')
-        .where('manifest').equals(manifest._id)
-        .exec()
-        .then(function(register){
-          return {
-            personId: register.person._id,
-            documentId: register.person.documentId,
-            name: register.person.name,
-            origin: manifest.origin,
-            destination: manifest.destination,
-            refId: manifest.itinerary.refId
-          }
-        });
+      if(req.query.date){
+        return Register.findOne()
+          .populate('person')
+          .where('manifest').equals(manifest._id)
+          .where('checkinDate').gte(moment(req.query.date))
+          .exec()
+          .then(function(register){
+            return {
+              personId: register.person._id,
+              documentId: register.person.documentId,
+              name: register.person.name,
+              origin: manifest.origin,
+              destination: manifest.destination,
+              refId: manifest.itinerary.refId
+            }
+          });
+      }
+      else{
+        return Register.findOne().populate('person')
+          .where('manifest').equals(manifest._id)
+          .exec()
+          .then(function(register){
+            return {
+              personId: register.person._id,
+              documentId: register.person.documentId,
+              name: register.person.name,
+              origin: manifest.origin,
+              destination: manifest.destination,
+              refId: manifest.itinerary.refId
+            }
+          });
+      }
     })
     .then(respondWithResult(res))
     .catch(handleError(res));

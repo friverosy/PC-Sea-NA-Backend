@@ -90,7 +90,7 @@ export function create(req, res) {
     }
   });
   
-  return Itinerary.create(req.body)
+  return Itinerary.findOneAndUpdate({refId: req.body.refId}, req.body, { upsert: true, new: true })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
