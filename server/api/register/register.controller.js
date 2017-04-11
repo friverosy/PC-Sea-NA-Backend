@@ -202,8 +202,8 @@ export function createManualSell(req, res) {
   // validate required params
   let requiredParams = [
     'itinerary',
-    'originName',
-    'destinationName',
+    'origin',
+    'destination',
     'ticketId',
     'name',
     'sex',
@@ -213,26 +213,7 @@ export function createManualSell(req, res) {
     'documentType'
   ];
 
-  console.log(`req.body = ${JSON.stringify(req.body)}`);
-  requiredParams.forEach(function(p) {
-    if(!_.includes(_.keys(req.body), p)) {
-      return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
-    }
-  });
-
-  return Itinerary.findOne({ refId: req.body.itinerary }).exec()
-  .then(function(itinerary) {
-    if(!itinerary) {
-      throw Error(`Itinerary with refId = ${req.query.itinerary}`);
-      // return res.status(400).json();
-    }
-
-    // transform refId into objectId
-    req.body.itinerary = itinerary._id;
-    req.body.isOnboard = true;
-
-    return Manifest.createManifest(req.body);
-  })
+  return Register.manualSell(req.body)
   .then(respondWithResult(res, 201))
   .catch(handleError(res));
 }
