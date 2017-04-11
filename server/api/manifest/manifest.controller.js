@@ -82,42 +82,27 @@ export function index(req, res) {
       }
     })
     .map(function(manifest) {
-      if(req.query.date){
-        return Register.findOne()
+      let baseQuery = Register.findOne()
           .populate('person')
-          .where('manifest')
-          .equals(manifest._id)
-          .where('checkinDate')
-          .gte(moment(req.query.date))
-          .exec()
-          .then(function(register) {
-            return {
-              personId: register.person._id,
-              documentId: register.person.documentId,
-              name: register.person.name,
-              origin: manifest.origin,
-              destination: manifest.destination,
-              refId: manifest.itinerary.refId
-            }
-          });
+          .where('manifest').equals(manifest._id);
+      
+      if(req.query.date){
+        return baseQuery.where('checkinDate').gte(moment(req.query.date).toISOString())
       }
-      else{
-        return Register.findOne().populate('person')
-          .where('manifest')
-          .equals(manifest._id)
-          .exec()
-          .then(function(register){
-            return {
-              personId: register.person._id,
-              documentId: register.person.documentId,
-              name: register.person.name,
-              origin: manifest.origin,
-              destination: manifest.destination,
-              refId: manifest.itinerary.refId
-            }
-          });
-      }
+      
+      return baseQuery.exec()
+        .map(function(register){        
+          return {
+            personId: register.person._id,
+            documentId: register.person.documentId,
+            name: register.person.name,
+            origin: manifest.origin,
+            destination: manifest.destination,
+            refId: manifest.itinerary.refId
+          }
+        })
     })
+    .filter(m => m != null)
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
