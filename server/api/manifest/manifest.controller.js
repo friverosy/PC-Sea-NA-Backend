@@ -15,6 +15,8 @@ import moment from 'moment';
 import Manifest from './manifest.model';
 import Register from '../register/register.model';
 
+import * as _ from 'lodash';
+
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function(entity) {
@@ -106,6 +108,7 @@ export function index(req, res) {
         })
     })
     .filter(m => m != null)
+    .then(m => _.flatten(m))
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
