@@ -76,21 +76,24 @@ export function index(req, res) {
     .exec()
     .filter(function(manifest) {
       if(req.query.itinerary) {
+        console.log(manifest);
+        console.log(manifest.itinerary.refId);
         return manifest.itinerary.refId == req.query.itinerary;
       } else {
         return manifest.itinerary != null; 
       }
     })
     .map(function(manifest) {
-      let baseQuery = Register.findOne()
+      //console.log(manifest);
+      let baseQuery2 = Register.find()
           .populate('person')
           .where('manifest').equals(manifest._id);
       
       if(req.query.date){
-        return baseQuery.where('checkinDate').gte(moment(req.query.date).toISOString())
+        baseQuery.where('checkinDate').gte(moment(req.query.date).toISOString())
       }
-      
-      return baseQuery.exec()
+
+      return baseQuery2.exec()
         .map(function(register){        
           return {
             personId: register.person._id,
