@@ -48,8 +48,8 @@ def postManifest(manifest, itineraryObjectId):
 
 
 itineraries = [
-                {'id_itinerario': 1, 'zarpe': '2016-10-10 05:00:00', 'codigo_ruta': '205', 'nombre_ruta': 'Chait\xe9n - Ayacara'}, 
-                {'id_itinerario': 2, 'zarpe': '2016-10-11 01:00:00', 'codigo_ruta': '205', 'nombre_ruta': 'Puerto Montt - Ayacara'},
+                {'id_itinerario': 1, 'zarpe': '2016-10-10T05:00:00.000Z', 'codigo_ruta': '205', 'nombre_ruta': 'Chait\xe9n - Ayacara'}, 
+                {'id_itinerario': 2, 'zarpe': '2016-10-11T01:00:00.000Z', 'codigo_ruta': '205', 'nombre_ruta': 'Puerto Montt - Ayacara'},
               ]
 
 
