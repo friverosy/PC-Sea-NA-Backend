@@ -71,15 +71,15 @@ function handleError(res, statusCode) {
 // Gets a list of Manifests
 export function index(req, res) {
   let baseQuery = Manifest.find().populate('itinerary');
-  console.log(moment(req.query.date));
+  //console.log(moment(req.query.date));
 
   return baseQuery
     .lean()
     .exec()
     .filter(function(manifest) {
       if(req.query.itinerary) {
-        console.log(manifest);
-        console.log(manifest.itinerary.refId);
+        //console.log(manifest);
+        //console.log(manifest.itinerary.refId);
         return manifest.itinerary.refId == req.query.itinerary;
       } else {
         return manifest.itinerary != null; 
