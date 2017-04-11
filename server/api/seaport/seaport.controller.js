@@ -80,16 +80,15 @@ export function show(req, res) {
 
 // Creates a new Seaport in the DB
 export function create(req, res) {
-  
   let requiredBodyArgs = ['locationId', 'locationName'];
-  
+
   requiredBodyArgs.forEach(arg => {
-    if (!req.body[arg]) {
+    if(!req.body[arg]) {
       return res.status(400).json({ messsage: `missing attribute: ${arg}`});
     }
   });
-  
-  return Seaport.update({ locationId : req.body['locationId'] }, req.body, { upsert : true })
+
+  return Seaport.update({ locationId: req.body.locationId }, req.body, { upsert: true })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
@@ -99,8 +98,9 @@ export function upsert(req, res) {
   if(req.body._id) {
     delete req.body._id;
   }
-  return Seaport.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true}).exec()
 
+  return Seaport.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
+    .exec()
     .then(respondWithResult(res))
     .catch(handleError(res));
 }

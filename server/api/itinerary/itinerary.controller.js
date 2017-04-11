@@ -81,15 +81,14 @@ export function show(req, res) {
 
 // Creates a new Itinerary in the DB
 export function create(req, res) {
-  
   let requiredBodyArgs = ['refId'];
-  
+
   requiredBodyArgs.forEach(arg => {
-    if (!req.body[arg]) {
+    if(!req.body[arg]) {
       return res.status(400).json({ messsage: `missing attribute: ${arg}`});
     }
   });
-  
+
   return Itinerary.findOneAndUpdate({refId: req.body.refId}, req.body, { upsert: true, new: true })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
@@ -100,7 +99,7 @@ export function upsert(req, res) {
   if(req.body._id) {
     delete req.body._id;
   }
-  
+
   return Itinerary.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true}).exec()
     .then(respondWithResult(res))
     .catch(handleError(res));

@@ -35,7 +35,7 @@ export function index(req, res) {
  */
 export function create(req, res) {
   var newUser = new User(req.body);
-  
+
   newUser.role = 'user';
   newUser.save()
     .then(function(user) {

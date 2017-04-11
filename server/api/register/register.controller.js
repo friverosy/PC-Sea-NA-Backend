@@ -85,45 +85,44 @@ export function show(req, res) {
 
 // Creates a new Register in the DB
 export function create(req, res) {
-  
   let requiredParams = [
     'person',
     'seaport',
     'manifest',
     'state'
   ];
-  
-  requiredParams.forEach(function(p){
-    if (!_.includes(_.keys(req.body), p)) {
+
+  requiredParams.forEach(function(p) {
+    if(!_.includes(_.keys(req.body), p)) {
       return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
     }
   });
-  
+
   let baseQuery = {
     person: req.body.person,
     manifest: req.body.manifest
   };
-  
-  var stateId = {0: "pending", 1:"checkin", 2:"checkout"};
+
+  var stateId = {0: 'pending', 1: 'checkin', 2: 'checkout'};
 
   let registerData = {
     state: stateId[Number(req.body.state)],
     person: req.body.person,
     manifest: req.body.manifest
   };
-  
-  if (Number(req.body.state) === 1) {
+
+  if(Number(req.body.state) === 1) {
     baseQuery.seaportCheckin = req.body.seaport;
     registerData.seaportCheckin = req.body.seaport;
-    registerData.checkinDate = req.body.date
-  } else if (Number(req.body.state) === 2) {
+    registerData.checkinDate = req.body.date;
+  } else if(Number(req.body.state) === 2) {
     baseQuery.seaportCheckout = req.body.seaport;
     registerData.seaportCheckout = req.body.seaport;
-    registerData.checkoutDate = req.body.date
+    registerData.checkoutDate = req.body.date;
   } else {
     return res.status(401).json({ messsage: `invalid register state: ${req.body.state}` });
   }
-  
+
   return Register.update(baseQuery, registerData, { upsert: true })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
@@ -168,35 +167,38 @@ export function status(req, res) {
   stateId.checkout = 2;
 
   return Itinerary.findOne({ refId: req.query.itinerary }).exec()
-  .then(function(itinerary){
+  .then(function(itinerary) {
     console.log(`got itinerary = ${JSON.stringify(itinerary)} from refId = ${req.query.itinerary}`);
-    
-    if (!itinerary) {
+
+    if(!itinerary) {
       return res.json([]);
     }
-    
-    return Manifest.find().where('itinerary').equals(itinerary._id).exec();
+
+    return Manifest.find()
+      .where('itinerary')
+      .equals(itinerary._id)
+      .exec();
   })
-  .then(function(manifests){
+  .then(function(manifests) {
     return Register.find()
       .populate('person')
-      .where('manifest').in(manifests.map(m => m._id))
-      .exec()
+      .where('manifest')
+      .in(manifests.map(m => m._id))
+      .exec();
   })
-  .then(function(registers){
+  .then(function(registers) {
     return registers.map(r => {
       return {
         documentId: r.person.documentId,
         state: stateId[r.state]
-      }
-    })
+      };
+    });
   })
   .then(respondWithResult(res, 201))
   .catch(handleError(res));
 }
 
 export function createManualSell(req, res) {
-  
   // validate required params
   let requiredParams = [
     'itinerary',
@@ -210,28 +212,27 @@ export function createManualSell(req, res) {
     'documentId',
     'documentType'
   ];
-  
+
   console.log(`req.body = ${JSON.stringify(req.body)}`);
-  requiredParams.forEach(function(p){
-    if (!_.includes(_.keys(req.body), p)) {
+  requiredParams.forEach(function(p) {
+    if(!_.includes(_.keys(req.body), p)) {
       return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
     }
   });
-  
+
   return Itinerary.findOne({ refId: req.body.itinerary }).exec()
-  .then(function(itinerary){
-    if (!itinerary) {
-      throw Error(`Itinerary with refId = ${req.query.itinerary}`)
+  .then(function(itinerary) {
+    if(!itinerary) {
+      throw Error(`Itinerary with refId = ${req.query.itinerary}`);
       // return res.status(400).json();
     }
-        
+
     // transform refId into objectId
     req.body.itinerary = itinerary._id;
     req.body.isOnboard = true;
-    
-    return Manifest.createManifest(req.body)
+
+    return Manifest.createManifest(req.body);
   })
   .then(respondWithResult(res, 201))
   .catch(handleError(res));
-  
 }

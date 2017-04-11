@@ -13,7 +13,6 @@
 import jsonpatch from 'fast-json-patch';
 import moment from 'moment';
 import Manifest from './manifest.model';
-import Person from '../person/person.model';
 import Register from '../register/register.model';
 
 function respondWithResult(res, statusCode) {
@@ -75,9 +74,9 @@ export function index(req, res) {
   return baseQuery
     .lean()
     .exec()
-    .filter(function(manifest){
-      if (req.query.itinerary) {
-        return manifest.itinerary.refId == req.query.itinerary
+    .filter(function(manifest) {
+      if(req.query.itinerary) {
+        return manifest.itinerary.refId == req.query.itinerary;
       } else {
         return manifest.itinerary != null; 
       }
@@ -86,10 +85,12 @@ export function index(req, res) {
       if(req.query.date){
         return Register.findOne()
           .populate('person')
-          .where('manifest').equals(manifest._id)
-          .where('checkinDate').gte(moment(req.query.date))
+          .where('manifest')
+          .equals(manifest._id)
+          .where('checkinDate')
+          .gte(moment(req.query.date))
           .exec()
-          .then(function(register){
+          .then(function(register) {
             return {
               personId: register.person._id,
               documentId: register.person.documentId,
@@ -102,7 +103,8 @@ export function index(req, res) {
       }
       else{
         return Register.findOne().populate('person')
-          .where('manifest').equals(manifest._id)
+          .where('manifest')
+          .equals(manifest._id)
           .exec()
           .then(function(register){
             return {
