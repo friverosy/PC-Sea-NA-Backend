@@ -36,20 +36,12 @@ RegisterSchema.statics = {
     		{ name: data.name, sex: data.sex, resident: data.resident, nationality: data.nationality, documentId: data.documentId, documentType: data.documentType },
         	{ upsert: true })
       .then(function(newPerson){
-        if(data.isOnboard) {
-            return Register.create({
-                person: newPerson._id,
-                manifest: newManifest._id,
-                seaportCheckin: data.origin,
-                isOnboard: true
-              })
-        } else {
-            return Register.create({
-                person: newPerson._id,
-                manifest: newManifest._id,
-                seaportCheckin: data.origin
-              })
-        }
+        return Register.create({
+        	person: newPerson._id,
+            manifest: newManifest._id,
+            seaportCheckin: data.origin,
+            isOnboard: true
+        })
       })
       .then(function(newRegister){
             return newManifest;
