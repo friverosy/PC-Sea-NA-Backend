@@ -8,9 +8,6 @@ import {EventEmitter} from 'events';
 import Person from './person.model';
 var PersonEvents = new EventEmitter();
 
-// Set max event listeners (0 == unlimited)
-PersonEvents.setMaxListeners(0);
-
 // Model events
 var events = {
   save: 'save',

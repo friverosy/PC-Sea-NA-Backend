@@ -84,6 +84,9 @@ export default function(app) {
     }));
   }
 
+  // Set EventEmitter max listeners to unlimited by default
+  require('events').EventEmitter.prototype._maxListeners = 0;
+
   if(env === 'development') {
 
   }

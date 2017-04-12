@@ -11,12 +11,12 @@ User.find({}).remove()
   .then(() => {
     User.create({
       name: 'Test User',
-      email: 'test@example.com',
+      username: 'test',
       password: 'test'
     }, {
       role: 'admin',
       name: 'Admin',
-      email: 'admin',
+      username: 'admin',
       password: 'admin'
     })
     .then(() => {

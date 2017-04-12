@@ -6,7 +6,7 @@ import mongoose, {Schema} from 'mongoose';
 
 var UserSchema = new Schema({
   name: String,
-  email: { type: String, lowercase: true, required: true },
+  username: { type: String, lowercase: true, required: true },
   role: { type: String, default: 'auxiliar' },
   password: { type: String, required: true },
   salt: String
@@ -40,12 +40,12 @@ UserSchema
  * Validations
  */
 
-// Validate empty email
+// Validate empty username
 UserSchema
-  .path('email')
-  .validate(function(email) {
-    return email.length;
-  }, 'Email cannot be blank');
+  .path('username')
+  .validate(function(username) {
+    return username.length;
+  }, 'username cannot be blank');
 
 // Validate empty password
 UserSchema
@@ -54,11 +54,11 @@ UserSchema
     return password.length;
   }, 'Password cannot be blank');
 
-// Validate email is not taken
+// Validate username is not taken
 UserSchema
-  .path('email')
+  .path('username')
   .validate(function(value, respond) {
-    return this.constructor.findOne({ email: value }).exec()
+    return this.constructor.findOne({ username: value }).exec()
       .then(user => {
         if(user) {
           if(this.id === user.id) {
@@ -71,7 +71,7 @@ UserSchema
       .catch(function(err) {
         throw err;
       });
-  }, 'The specified email address is already in use.');
+  }, 'The specified username address is already in use.');
 
 var validatePresenceOf = function(value) {
   return value && value.length;

@@ -8,8 +8,6 @@ import {EventEmitter} from 'events';
 import Seaport from './seaport.model';
 var SeaportEvents = new EventEmitter();
 
-// Set max event listeners (0 == unlimited)
-SeaportEvents.setMaxListeners(0);
 
 // Model events
 var events = {

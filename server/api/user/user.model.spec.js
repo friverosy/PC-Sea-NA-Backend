@@ -6,7 +6,7 @@ var user;
 var genUser = function() {
   user = new User({
     name: 'Fake User',
-    email: 'test@example.com',
+    username: 'test@example.com',
     password: 'password'
   });
   return user;
@@ -39,19 +39,19 @@ describe('User Model', function() {
       })).to.be.rejected;
   });
 
-  describe('#email', function() {
-    it('should fail when saving with a blank email', function() {
-      user.email = '';
+  describe('#username', function() {
+    it('should fail when saving with a blank username', function() {
+      user.username = '';
       return expect(user.save()).to.be.rejected;
     });
 
-    it('should fail when saving with a null email', function() {
-      user.email = null;
+    it('should fail when saving with a null username', function() {
+      user.username = null;
       return expect(user.save()).to.be.rejected;
     });
 
-    it('should fail when saving without an email', function() {
-      user.email = undefined;
+    it('should fail when saving without an username', function() {
+      user.username = undefined;
       return expect(user.save()).to.be.rejected;
     });
   });

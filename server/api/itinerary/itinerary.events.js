@@ -8,9 +8,6 @@ import {EventEmitter} from 'events';
 import Itinerary from './itinerary.model';
 var ItineraryEvents = new EventEmitter();
 
-// Set max event listeners (0 == unlimited)
-ItineraryEvents.setMaxListeners(0);
-
 // Model events
 var events = {
   save: 'save',
