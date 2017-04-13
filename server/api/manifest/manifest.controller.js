@@ -15,6 +15,8 @@ import moment from 'moment';
 import Manifest from './manifest.model';
 import Register from '../register/register.model';
 
+import * as _ from 'lodash';
+
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function(entity) {
@@ -69,28 +71,31 @@ function handleError(res, statusCode) {
 // Gets a list of Manifests
 export function index(req, res) {
   let baseQuery = Manifest.find().populate('itinerary');
-  console.log(moment(req.query.date));
+  //console.log(moment(req.query.date));
 
   return baseQuery
     .lean()
     .exec()
     .filter(function(manifest) {
       if(req.query.itinerary) {
+        //console.log(manifest);
+        //console.log(manifest.itinerary.refId);
         return manifest.itinerary.refId == req.query.itinerary;
       } else {
         return manifest.itinerary != null; 
       }
     })
     .map(function(manifest) {
-      let baseQuery = Register.findOne()
+      //console.log(manifest);
+      let baseQuery2 = Register.find()
           .populate('person')
           .where('manifest').equals(manifest._id);
       
       if(req.query.date){
-        return baseQuery.where('checkinDate').gte(moment(req.query.date).toISOString())
+        baseQuery.where('checkinDate').gte(moment(req.query.date).toISOString())
       }
-      
-      return baseQuery.exec()
+
+      return baseQuery2.exec()
         .map(function(register){        
           return {
             personId: register.person._id,
@@ -103,6 +108,7 @@ export function index(req, res) {
         })
     })
     .filter(m => m != null)
+    .then(m => _.flatten(m))
     .then(respondWithResult(res))
     .catch(handleError(res));
 }

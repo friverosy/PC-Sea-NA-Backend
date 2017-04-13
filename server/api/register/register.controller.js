@@ -168,7 +168,7 @@ export function status(req, res) {
 
   return Itinerary.findOne({ refId: req.query.itinerary }).exec()
   .then(function(itinerary) {
-    console.log(`got itinerary = ${JSON.stringify(itinerary)} from refId = ${req.query.itinerary}`);
+    //console.log(`got itinerary = ${JSON.stringify(itinerary)} from refId = ${req.query.itinerary}`);
 
     if(!itinerary) {
       return res.json([]);

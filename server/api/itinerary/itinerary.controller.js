@@ -12,6 +12,8 @@
 
 import jsonpatch from 'fast-json-patch';
 import Itinerary from './itinerary.model';
+import Manifest from '../manifest/manifest.model';
+import * as _ from 'lodash';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -122,5 +124,23 @@ export function destroy(req, res) {
   return Itinerary.findById(req.params.id).exec()
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
+    .catch(handleError(res));
+}
+
+export function getSeaports(req, res) {
+  return Manifest.find()
+    .populate('origin destination')
+    .where('itinerary').equals(req.params.id)
+    .exec()
+    .map(function(manifest) { 
+      return [
+        manifest.origin,
+        manifest.destination
+      ]
+    })
+    .then(function(seaports){
+      return _.uniqBy(_.flatten(seaports), function(s) { return s._id.toString() })
+    })
+    .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
