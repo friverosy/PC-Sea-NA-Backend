@@ -3,10 +3,11 @@ import json
 import sys
 from StringIO import StringIO
 import getopt
+import pprint
 
 TOKEN = '860a2e8f6b125e4c7b9bc83709a0ac1ddac9d40f'
 TOKEN_NAV = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OGRiM2I3NGI0ODRjOTIyOTVmMTE3MWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE0OTA3NjI2MTl9.pHVwA2u0iaVhjJ_ljU0NtFR_y0EGCwKXsLgIKSUcCK8'
-NAV_API_URL = 'http://localhost:9000/api/'
+NAV_API_URL = 'http://localhost:9001/api/'
 
 def getItineraries(date):
     #print 'Getting itineraries from:', date
@@ -100,8 +101,10 @@ for opt, arg in opts:
         sys.exit()
     elif opt in ("-d", "--date"):
         date = arg
+        pp = pprint.PrettyPrinter(indent=4)
 
         itineraries = getItineraries(date)
+        pp.pprint(itineraries)
 
         #print ''
         #print 'Getting Ports Associated to each itinerary'
@@ -109,23 +112,32 @@ for opt, arg in opts:
             for itinerary in itineraries[keyword]:
 
                 # POST itinerary
-                itineraryObjectId = postItinerary(itinerary)
+                #itineraryObjectId = postItinerary(itinerary)
+                #print "itinerary : %s " % itineraryObjectId
  
                 # GET ports
                 ports = getPorts(itinerary["id_itinerario"])
+                print "\nPorts associated to the itinerary: %s, itinerary " % (itinerary["id_itinerario"])
+                pp.pprint(ports)
+
+                total_manifests = 0
 
                 #print 'Getting Initial Manifest Associated to each itinerary and port'
                 for port_id in ports:
                     for p in ports[port_id]:
                         print 'posting port: ' + p['nombre_ubicacion']
                         # POST Port
-                        postPort(p)
+                        #postPort(p)
                         
                     for p in ports[port_id]:
                         # POST Manifest
                         manifest = getInitialManifest(itinerary["id_itinerario"], p['id_ubicacion'])
+                        print "\tThere are %d entries in the manifest of the itinerary: %s / port: %s " % (len(manifest['manifiesto_pasajero']), itinerary["id_itinerario"], p['nombre_ubicacion'])
+                        total_manifests = total_manifests + len(manifest['manifiesto_pasajero'])
+                        #pp.pprint(manifest)
 
-                        postManifest(manifest, itineraryObjectId)
+                        #postManifest(manifest, itineraryObjectId)
+                print "\t==> Total number of manifest %d" %  total_manifests 
 
     elif opt in ("-u", "--update"):
         update_time = arg
