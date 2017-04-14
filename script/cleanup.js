@@ -1,3 +1,9 @@
+//
+// Remove all the documents related to a specific date. Use very CAREFULLY!!!!!!
+// Syntax:
+//       mongo nav-dev --eval 'mydate="2017-04-13"' cleanup.js 
+//
+
 print("removing data associated to date: " + mydate);
 db.itineraries.find({depart: { $gte: ISODate(mydate + "T00:00:00Z"), $lt:  ISODate(mydate + "T23:59:59Z")}})
   .forEach(function(i) {
