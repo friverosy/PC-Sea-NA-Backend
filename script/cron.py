@@ -94,6 +94,14 @@ except getopt.GetoptError:
     print 'test.py -d date'
     sys.exit(2)
 
+# TODO:  pass as part of arguments 
+do_post = True
+
+if do_post: 
+    print "Data will be inserted into the mongodb. do_post: %s"  % str(do_post)
+else:
+    print "Data won't be inserted into the mongodb. do_post: %s" % str(do_post)
+
 for opt, arg in opts:
     if opt == '-h':
         print 'test.py -d <date>'
@@ -112,8 +120,9 @@ for opt, arg in opts:
             for itinerary in itineraries[keyword]:
 
                 # POST itinerary
-                #itineraryObjectId = postItinerary(itinerary)
-                #print "itinerary : %s " % itineraryObjectId
+                if do_post:
+                    itineraryObjectId = postItinerary(itinerary)
+                    print "itinerary : %s " % itineraryObjectId
  
                 # GET ports
                 ports = getPorts(itinerary["id_itinerario"])
@@ -127,7 +136,8 @@ for opt, arg in opts:
                     for p in ports[port_id]:
                         print 'posting port: ' + p['nombre_ubicacion']
                         # POST Port
-                        #postPort(p)
+                        if do_post:
+                            postPort(p)
                         
                     for p in ports[port_id]:
                         # POST Manifest
@@ -136,7 +146,8 @@ for opt, arg in opts:
                         total_manifests = total_manifests + len(manifest['manifiesto_pasajero'])
                         #pp.pprint(manifest)
 
-                        #postManifest(manifest, itineraryObjectId)
+                        if do_post: 
+                            postManifest(manifest, itineraryObjectId)
                 print "\t==> Total number of manifest %d" %  total_manifests 
 
     elif opt in ("-u", "--update"):
