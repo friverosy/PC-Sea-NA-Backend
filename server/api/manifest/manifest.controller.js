@@ -87,16 +87,23 @@ export function index(req, res) {
     })
     .map(function(manifest) {
       //console.log(manifest);
-      let baseQuery2 = Register.find()
-          .populate('person')
-          .where('manifest').equals(manifest._id);
-      
+      let baseQuery2;
       if(req.query.date){
-        baseQuery.where('checkinDate').gte(moment(req.query.date).toISOString())
+        baseQuery2 = Register.find()
+          .populate('person')
+          .where('manifest').equals(manifest._id)
+          .where('checkinDate').gte(moment(req.query.date).toISOString())
+      } else {
+        baseQuery2 = Register.find()
+          .populate('person')
+          .where('manifest').equals(manifest._id)
       }
 
       return baseQuery2.exec()
         .map(function(register){        
+          //console.log("Getting the associated Register of manifest _id:" + manifest._id);
+          //console.log(manifest);
+          //console.log(register);
           return {
             personId: register.person._id,
             documentId: register.person.documentId,
