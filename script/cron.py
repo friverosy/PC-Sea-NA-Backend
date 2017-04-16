@@ -43,14 +43,14 @@ def getInitialManifest(itinerary_id, port_id):
     return manifest
 
 def getUpdatedManifest(itinerary_id, port_id, update_time):
-    #print 'Itinerary:', itinerary_id, 'Port:', port_id
+    print 'Itinerary:', itinerary_id, 'Port:', port_id
 
     url_imaginex_manifest = 'http://ticket.bsale.cl/control_api/itinerary_manifest?itinerary=' + str(itinerary_id) + '&port=' + str(port_id) + '&date=' + update_time
     response = requests.get(url_imaginex_manifest, headers={'token': TOKEN})
 
     manifest = json.loads(response.text)
 
-    #print manifest
+    print manifest
 
     return manifest
 
@@ -156,12 +156,12 @@ for opt, arg in opts:
 
         itineraries = getItineraries(date)
 
-        #print 'Getting Ports Associated to each itinerary'
+        print 'Getting Ports Associated to each itinerary'
         for keyword in itineraries:
             for itinerary in itineraries[keyword]:
                 ports = getPorts(itinerary["id_itinerario"])
 
-                #print 'Getting Initial Manifest Associated to each itinerary and port'
+                print 'Getting Initial Manifest Associated to each itinerary and port'
                 for port_id in ports:
                     for p in ports[port_id]:
                         manifest = getUpdatedManifest(itinerary["id_itinerario"], p['id_ubicacion'], update_time)
