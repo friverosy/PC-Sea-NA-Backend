@@ -45,14 +45,16 @@ ManifestSchema.statics = {
 
       return Manifest.create(data)
         .then(function(newManifest){
-          return Person.create({
+          return Person.update({documentId : data.documentId}, 
+          {
             name: data.name,
             sex: data.sex,
             resident: data.resident,
             nationality: data.nationality,
             documentId: data.documentId,
             documentType: data.documentType
-          })
+          },
+          { upsert: true })
           .then(function(newPerson){
             if(data.isOnboard)
               return Register.create({
