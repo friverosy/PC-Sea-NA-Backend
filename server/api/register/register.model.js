@@ -31,20 +31,22 @@ RegisterSchema.statics = {
 
 	return Manifest.create(data)
       .then(function(newManifest){
-    	return Person.update(
-    		{ documentId: data.documentId },
-    		{ name: data.name, sex: data.sex, resident: data.resident, nationality: data.nationality, documentId: data.documentId, documentType: data.documentType },
-        	{ upsert: true })
+    	  return Person.findOneAndUpdate(
+    		  { documentId: data.documentId },
+    		  { name: data.name, sex: data.sex, resident: data.resident, nationality: data.nationality, documentId: data.documentId, documentType: data.documentType },
+          { upsert: true, setDefaultsOnInsert: true, runValidators: true }
+        )
       .then(function(newPerson){
         return Register.create({
-        	person: newPerson._id,
             manifest: newManifest._id,
             seaportCheckin: data.origin,
-            isOnboard: true
+            person: newPerson._id,
+            isOnboard: true,
+            state: 'checkin'
         })
       })
       .then(function(newRegister){
-            return newManifest;
+        return newManifest;
       });
     });
   }
