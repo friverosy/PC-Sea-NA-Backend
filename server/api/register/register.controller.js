@@ -133,10 +133,14 @@ export function upsert(req, res) {
   if(req.body._id) {
     delete req.body._id;
   }
-  return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true}).exec()
 
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+  let states = { 0: 'pending', 1: 'checkin', 2: 'checkout' };
+  req.body.state = states[req.body.state];
+
+  return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
+  .exec()
+  .then(respondWithResult(res))
+  .catch(handleError(res));
 }
 
 // Updates an existing Register in the DB
