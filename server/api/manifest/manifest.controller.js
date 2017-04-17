@@ -101,18 +101,25 @@ export function index(req, res) {
 
       return baseQuery2.exec()
         .map(function(register){        
-          //console.log("Getting the associated Register of manifest _id:" + manifest._id);
-          //console.log(manifest);
-          //console.log(register);
-          return {
-            personId: register.person._id,
-            documentId: register.person.documentId,
-            name: register.person.name,
-            origin: manifest.origin,
-            destination: manifest.destination,
-            refId: manifest.itinerary.refId
+          if(register.person)  {
+            return {
+              personId: register.person._id,
+              documentId: register.person.documentId,
+              name: register.person.name,
+              origin: manifest.origin,
+              destination: manifest.destination,
+              refId: manifest.itinerary.refId,
+              manifestId: manifest._id
+            }
+          } else {
+            console.log("Error: Bad Register, it doens't contain register.person._id, these are the faulty documents");
+            console.log("Manifest");
+            console.log(manifest);
+            console.log("Register of manifest _id:" + manifest._id);
+            console.log(register);
+            console.log("------");
           }
-        })
+       })
     })
     .filter(m => m != null)
     .then(m => _.flatten(m))
