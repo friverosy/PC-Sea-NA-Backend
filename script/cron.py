@@ -50,6 +50,7 @@ def getUpdatedManifest(itinerary_id, port_id, update_time):
 
     manifest = json.loads(response.text)
 
+    print 'URL:', url_imaginex_manifest
     print manifest
 
     return manifest
