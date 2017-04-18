@@ -33,7 +33,7 @@ def getPorts(itinerary_id):
 def getInitialManifest(itinerary_id, port_id):
     #print 'Itinerary:', itinerary_id, 'Port:', port_id
 
-    url_imaginex_manifest = 'http://ticket.bsale.cl/control_api/itinerary_manifest?itinerary=' + str(itinerary_id) + '&port=' + str(port_id)
+    url_imaginex_manifest = 'http://ticket.bsale.cl/control_api/embarks?itinerary=' + str(itinerary_id) + '&port=' + str(port_id)
     response = requests.get(url_imaginex_manifest, headers={'token': TOKEN})
 
     manifest = json.loads(response.text)
@@ -77,7 +77,7 @@ def postPort(port):
     response = requests.post(url_nav_port, data={'locationId':port['id_ubicacion'], 'locationName':port['nombre_ubicacion']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
 def postManifest(manifest, itineraryObjectId):
-    for m in manifest['manifiesto_pasajero']:
+    for m in manifest['manifiesto_embarque']:
         print m
         print ''
         print ''
@@ -86,7 +86,7 @@ def postManifest(manifest, itineraryObjectId):
         response = requests.post(url_nav_manifest, data={'name':m['nombre_pasajero'], 'sex':m['sexo'], 'resident':m['residente'], 
                                                         'nationality':m['nacionalidad'], 'documentId':m['codigo_pasajero'], 
                                                         'documentType':m['nombre_cod_documento'], 'reservationId':m['id_detalle_reserva'], 
-                                                        'reservationStatus':m['estado_detalle_reserva'], 'ticketId':m['ticket'], 'originName':m['origen'], 
+                                                        'reservationStatus':0, 'ticketId':m['ticket'], 'originName':m['origen'], 
                                                         'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
 try:
@@ -143,9 +143,9 @@ for opt, arg in opts:
                     for p in ports[port_id]:
                         # POST Manifest
                         manifest = getInitialManifest(itinerary["id_itinerario"], p['id_ubicacion'])
-                        print "\tThere are %d entries in the manifest of the itinerary: %s / port: %s " % (len(manifest['manifiesto_pasajero']), itinerary["id_itinerario"], p['nombre_ubicacion'])
-                        total_manifests = total_manifests + len(manifest['manifiesto_pasajero'])
-                        #pp.pprint(manifest)
+                        print "\tThere are %d entries in the manifest of the itinerary: %s / port: %s " % (len(manifest['manifiesto_embarque']), itinerary["id_itinerario"], p['nombre_ubicacion'])
+                        total_manifests = total_manifests + len(manifest['manifiesto_embarque'])
+                        pp.pprint(manifest)
 
                         if do_post: 
                             postManifest(manifest, itineraryObjectId)
