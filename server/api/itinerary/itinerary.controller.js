@@ -155,7 +155,8 @@ export function getRegisters(req, res) {
       let manifestsIds = manifests.map(m => m._id);
       
       return Register.find()
-        .populate('person manifest seaportCheckin seaportCheckout')
+        .populate('person seaportCheckin seaportCheckout')
+        .deepPopulate('manifest.origin manifest.destination')
         .where('manifest').in(manifestsIds)
     })
     .then(respondWithResult(res, 200))
