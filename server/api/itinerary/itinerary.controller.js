@@ -13,6 +13,8 @@
 import jsonpatch from 'fast-json-patch';
 import Itinerary from './itinerary.model';
 import Manifest from '../manifest/manifest.model';
+import Register from '../register/register.model';
+
 import * as _ from 'lodash';
 
 function respondWithResult(res, statusCode) {
@@ -142,5 +144,20 @@ export function getSeaports(req, res) {
       return _.uniqBy(_.flatten(seaports), function(s) { return s._id.toString() })
     })
     .then(respondWithResult(res, 201))
+    .catch(handleError(res));
+}
+
+export function getRegisters(req, res) {
+  return Manifest.find()
+    .where('itinerary').equals(req.params.id)
+    .exec()
+    .then(function(manifests){
+      let manifestsIds = manifests.map(m => m._id);
+      
+      return Register.find()
+        .populate('person manifest seaportCheckin seaportCheckout')
+        .where('manifest').in(manifestsIds)
+    })
+    .then(respondWithResult(res, 200))
     .catch(handleError(res));
 }

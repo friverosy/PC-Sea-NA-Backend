@@ -15,6 +15,6 @@ router.get('/:id/seaports', controller.getSeaports);
 
 // router.get('/:id/routes', controller.getRoutes);
 // router.get('/:id/manifests', controller.getManifests);
-// router.get('/:id/registers', controller.getRegisters);
+router.get('/:id/registers', controller.getRegisters);
 
 module.exports = router;
