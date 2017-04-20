@@ -9,6 +9,8 @@ import Seaport from '../seaport/seaport.model';
 import Register from '../register/register.model';
 import Person from '../person/person.model';
 
+var deepPopulate = require('mongoose-deep-populate')(mongoose);
+
 var ManifestSchema = new mongoose.Schema({
   reservationId: Number,
   reservationStatus: Number,
@@ -96,5 +98,13 @@ ManifestSchema.statics = {
     });
   }
 }
+
+//-------------------------------------------------------
+//                     Plugins
+//-------------------------------------------------------
+
+
+ManifestSchema.plugin(deepPopulate, {});
+
 
 export default mongoose.model('Manifest', ManifestSchema);

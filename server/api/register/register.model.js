@@ -10,6 +10,8 @@ import Register from '../register/register.model';
 import Person from '../person/person.model';
 import Manifest from '../manifest/manifest.model';
 
+var deepPopulate = require('mongoose-deep-populate')(mongoose);
+
 var RegisterSchema = new mongoose.Schema({
   state: { type: String, enum: ['pending', 'checkin', 'checkout'], default: 'pending' },
   isOnboard: { type: Boolean, default: false },
@@ -51,5 +53,13 @@ RegisterSchema.statics = {
     });
   }
 }
+
+//-------------------------------------------------------
+//                     Plugins
+//-------------------------------------------------------
+
+
+RegisterSchema.plugin(deepPopulate, {});
+
 
 export default mongoose.model('Register', RegisterSchema);
