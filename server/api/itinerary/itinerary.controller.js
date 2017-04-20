@@ -14,6 +14,7 @@ import jsonpatch from 'fast-json-patch';
 import Itinerary from './itinerary.model';
 import Manifest from '../manifest/manifest.model';
 import Register from '../register/register.model';
+import moment from 'moment';
 
 import * as _ from 'lodash';
 
@@ -70,9 +71,26 @@ function handleError(res, statusCode) {
 
 // Gets a list of Itinerarys
 export function index(req, res) {
-  return Itinerary.find().exec()
+
+  let baseQuery;
+  if(req.query.date){
+    //console.log("date");
+    //console.log(req.query.date);
+    let dateStart = moment(req.query.date).startOf('Day').toISOString();
+    let dateEnd = moment(dateStart).add(1, 'd').toISOString();
+    //console.log(dateStart);
+    //console.log(dateEnd);
+    baseQuery = Itinerary.find()
+      .where('depart').gte(dateStart)
+      .where('depart').lt(dateEnd)
+  } else {
+    baseQuery = Itinerary.find()
+  }
+
+  return baseQuery.exec()
     .then(respondWithResult(res))
     .catch(handleError(res));
+    
 }
 
 // Gets a single Itinerary from the DB
