@@ -192,10 +192,17 @@ export function status(req, res) {
   })
   .then(function(registers) {
     return registers.map(r => {
-      return {
-        documentId: r.person.documentId,
-        state: stateId[r.state]
-      };
+      if(r.person != null) { 
+        return {
+          documentId: r.person.documentId,
+          state: stateId[r.state]
+        };
+      } else { 
+        console.log("------");
+        console.log("Corrupt Register, Person is null!:");
+        console.log(r);
+        return;
+      }
     });
   })
   .then(respondWithResult(res, 201))

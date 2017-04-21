@@ -78,9 +78,15 @@ export function index(req, res) {
     .exec()
     .filter(function(manifest) {
       if(req.query.itinerary) {
-        //console.log(manifest);
-        //console.log(manifest.itinerary.refId);
-        return manifest.itinerary.refId == req.query.itinerary;
+        //console.log(manifest.itinerary);
+        if(manifest.itinerary !=null) {
+          //console.log(manifest.itinerary.refId);
+          return manifest.itinerary.refId == req.query.itinerary;
+        } else {
+          console.log(" corrupted manifest found, itinerary or refid is null:");
+          console.log(manifest);
+        }
+       
       } else {
         return manifest.itinerary != null; 
       }
@@ -109,7 +115,8 @@ export function index(req, res) {
               origin: manifest.origin,
               destination: manifest.destination,
               refId: manifest.itinerary.refId,
-              manifestId: manifest._id
+              manifestId: manifest._id,
+              registerId: register._id
             }
           } else {
             console.log("Error: Bad Register, it doens't contain register.person._id, these are the faulty documents");
@@ -118,6 +125,16 @@ export function index(req, res) {
             console.log("Register of manifest _id:" + manifest._id);
             console.log(register);
             console.log("------");
+            return {
+              personId: 0,
+              documentId: "",
+              name: "",
+              origin: manifest.origin,
+              destination: manifest.destination,
+              refId: manifest.itinerary.refId,
+              manifestId: manifest._id,
+              registerId: register._id
+            }
           }
        })
     })
