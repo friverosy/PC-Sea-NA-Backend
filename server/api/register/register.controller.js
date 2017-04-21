@@ -130,17 +130,35 @@ export function create(req, res) {
 
 // Upserts the given Register in the DB at the specified ID
 export function upsert(req, res) {
-  if(req.body._id) {
-    delete req.body._id;
+  
+  //console.log(">>>>>>>>>>>>>>>> req.params.id");
+  //console.log(req.params.id);
+  //console.log(req.params);
+  if(req.params['id'] == 'null') {
+    //TODO: this is the case of unauthorized attemp to aboard. We should log the 
+    //      info to show them in a separted view
+    console.log("Ivalid passenger trying to checkin, logging the information ...");
+    //return Register.create({ 
+    //     
+    //})
+    //.exec()
+    //.then(respondWithResult(res))
+    //.catch(handleError(res));
+    return res.json({unathorized : 1});
+    
+  } else {
+    if(req.body._id) {
+      delete req.body._id;
+    }
+
+    let states = { 0: 'pending', 1: 'checkin', 2: 'checkout' };
+    req.body.state = states[req.body.state];
+
+    return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
+    .exec()
+    .then(respondWithResult(res))
+    .catch(handleError(res));
   }
-
-  let states = { 0: 'pending', 1: 'checkin', 2: 'checkout' };
-  req.body.state = states[req.body.state];
-
-  return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
-  .exec()
-  .then(respondWithResult(res))
-  .catch(handleError(res));
 }
 
 // Updates an existing Register in the DB
