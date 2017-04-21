@@ -30,6 +30,24 @@ def getPorts(itinerary_id):
 
     return ports
 
+def getItineraryObjectId(mdate, itinerary_id):
+    #print 'Itinerary:', itinerary_id
+
+    url_nav_manifest = NAV_API_URL + 'itineraries?date=' + mdate
+    #print url_nav_manifest
+    response = requests.get(url_nav_manifest , headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+    itineraries = json.loads(response.text)
+    #print "------------"
+    for itinerary in itineraries:
+        #print itinerary
+        if(itinerary['refId'] == itinerary_id):
+            #print "Bingo, found the ObjectId for refId: %d" % itinerary_id 
+            return str(itinerary['_id'])
+     
+    return "-1"
+
+
 def getInitialManifest(itinerary_id, port_id):
     #print 'Itinerary:', itinerary_id, 'Port:', port_id
 
@@ -43,15 +61,15 @@ def getInitialManifest(itinerary_id, port_id):
     return manifest
 
 def getUpdatedManifest(itinerary_id, port_id, update_time):
-    print 'Itinerary:', itinerary_id, 'Port:', port_id
+    #print 'Itinerary:', itinerary_id, 'Port:', port_id
 
     url_imaginex_manifest = 'http://ticket.bsale.cl/control_api/itinerary_manifest?itinerary=' + str(itinerary_id) + '&port=' + str(port_id) + '&date=' + update_time
     response = requests.get(url_imaginex_manifest, headers={'token': TOKEN})
 
     manifest = json.loads(response.text)
 
-    print 'URL:', url_imaginex_manifest
-    print manifest
+    #print 'URL:', url_imaginex_manifest
+    #print manifest
 
     return manifest
 
@@ -88,6 +106,20 @@ def postManifest(manifest, itineraryObjectId):
                                                         'documentType':m['nombre_cod_documento'], 'reservationId':m['id_detalle_reserva'], 
                                                         'reservationStatus':0, 'ticketId':m['ticket'], 'originName':m['origen'], 
                                                         'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+def postUpdateManifest(manifest, itineraryObjectId):
+    for m in manifest['manifiesto_pasajero']:
+        print m
+        print ''
+        print ''
+
+        url_nav_manifest = NAV_API_URL + 'manifests/'
+        response = requests.post(url_nav_manifest, data={'name':m['nombre_pasajero'], 'sex':m['sexo'], 'resident':m['residente'], 
+                                                        'nationality':m['nacionalidad'], 'documentId':m['codigo_pasajero'], 
+                                                        'documentType':m['nombre_cod_documento'], 'reservationId':m['id_detalle_reserva'], 
+                                                        'reservationStatus':0, 'ticketId':m['ticket'], 'originName':m['origen'], 
+                                                        'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'd:u:h', ['date=', 'update=', 'help='])
@@ -154,16 +186,32 @@ for opt, arg in opts:
     elif opt in ("-u", "--update"):
         update_time = arg
         date = update_time.split(' ')[0]
+        pp = pprint.PrettyPrinter(indent=4)
 
         itineraries = getItineraries(date)
 
-        print 'Getting Ports Associated to each itinerary'
+        #print 'Getting Ports Associated to each itinerary'
         for keyword in itineraries:
             for itinerary in itineraries[keyword]:
                 ports = getPorts(itinerary["id_itinerario"])
+                print "\nPorts associated to the itinerary: %s" % (itinerary["id_itinerario"])
 
-                print 'Getting Initial Manifest Associated to each itinerary and port'
+                #print 'Getting Initial Manifest Associated to each itinerary and port'
                 for port_id in ports:
                     for p in ports[port_id]:
                         manifest = getUpdatedManifest(itinerary["id_itinerario"], p['id_ubicacion'], update_time)
+                        print "\tThere are %d entries in the manifest of the itinerary: %s / port: %s (id=%d)" % (len(manifest['manifiesto_pasajero']), itinerary["id_itinerario"], p['nombre_ubicacion'], p['id_ubicacion'])
+                        pp.pprint(manifest)
+                        itineraryObjectId = getItineraryObjectId(date, itinerary["id_itinerario"])
+                        #print "The itinerary ObjectId = %s " % itineraryObjectId
+                        if itineraryObjectId == "-1": 
+                            print "Error in the database, Couldn't find the ObjectId of Itinerary %d, skipping manifests" % itinerary["id_itinerario"]
+                        else: 
+                            if do_post: 
+                                pass
+                                #postUpdateManifest(manifest, itineraryObjectId)
+
+
+
+  
 
