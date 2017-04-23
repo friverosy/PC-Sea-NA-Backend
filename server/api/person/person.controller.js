@@ -80,7 +80,7 @@ export function show(req, res) {
 
 // Creates a new Person in the DB
 export function create(req, res) {
-  return Person.update({documentId : req.body.documentId}, req.body, { upsert: true })
+  return Person.update({documentId: req.body.documentId}, req.body, { upsert: true })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }

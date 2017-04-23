@@ -130,29 +130,34 @@ export function create(req, res) {
 
 // Upserts the given Register in the DB at the specified ID
 export function upsert(req, res) {
-  
   //console.log(">>>>>>>>>>>>>>>> req.params.id");
   //console.log(req.params.id);
   //console.log(req.params);
-  if(req.params['id'] == 'null') {
-    //TODO: this is the case of unauthorized attemp to aboard. We should log the 
+  if(req.params.id == 'null') {
+    //TODO: this is the case of unauthorized attemp to aboard. We should log the
     //      info to show them in a separted view
-    console.log("Ivalid passenger trying to checkin, logging the information ...");
-    //return Register.create({ 
-    //     
+    console.log('Invalid passenger trying to checkin, logging the information ...');
+    //return Register.create({
+    //
     //})
     //.exec()
     //.then(respondWithResult(res))
     //.catch(handleError(res));
-    return res.json({unathorized : 1});
-    
+    return res.json({ unathorized: 1 });
   } else {
     if(req.body._id) {
       delete req.body._id;
     }
 
+    if(req.body.deniedReason) {
+      req.body.isDenied = true;
+    }
+
     let states = { 0: 'pending', 1: 'checkin', 2: 'checkout' };
     req.body.state = states[req.body.state];
+
+    console.log(req.params.id);
+    console.log(req.body);
 
     return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
     .exec()
@@ -210,14 +215,14 @@ export function status(req, res) {
   })
   .then(function(registers) {
     return registers.map(r => {
-      if(r.person != null) { 
+      if(r.person != null) {
         return {
           documentId: r.person.documentId,
           state: stateId[r.state]
         };
-      } else { 
-        console.log("------");
-        console.log("Corrupt Register, Person is null!:");
+      } else {
+        console.log('------');
+        console.log('Corrupt Register, Person is null!:');
         console.log(r);
         return;
       }
@@ -229,18 +234,18 @@ export function status(req, res) {
 
 export function createManualSell(req, res) {
   // validate required params
-  let requiredParams = [
-    'itinerary',
-    'origin',
-    'destination',
-    'ticketId',
-    'name',
-    'sex',
-    'resident',
-    'nationality',
-    'documentId',
-    'documentType'
-  ];
+  // let requiredParams = [
+  //   'itinerary',
+  //   'origin',
+  //   'destination',
+  //   'ticketId',
+  //   'name',
+  //   'sex',
+  //   'resident',
+  //   'nationality',
+  //   'documentId',
+  //   'documentType'
+  // ];
 
   return Register.manualSell(req.body)
   .then(respondWithResult(res, 201))

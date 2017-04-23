@@ -79,35 +79,37 @@ export function index(req, res) {
     .filter(function(manifest) {
       if(req.query.itinerary) {
         //console.log(manifest.itinerary);
-        if(manifest.itinerary !=null) {
+        if(manifest.itinerary != null) {
           //console.log(manifest.itinerary.refId);
           return manifest.itinerary.refId == req.query.itinerary;
         } else {
-          console.log(" corrupted manifest found, itinerary or refid is null:");
+          console.log('corrupted manifest found, itinerary or refid is null:');
           console.log(manifest);
         }
-       
       } else {
-        return manifest.itinerary != null; 
+        return manifest.itinerary != null;
       }
     })
     .map(function(manifest) {
       //console.log(manifest);
       let baseQuery2;
-      if(req.query.date){
+      if(req.query.date) {
         baseQuery2 = Register.find()
           .populate('person')
-          .where('manifest').equals(manifest._id)
-          .where('checkinDate').gte(moment(req.query.date).toISOString())
+          .where('manifest')
+          .equals(manifest._id)
+          .where('checkinDate')
+          .gte(moment(req.query.date).toISOString());
       } else {
         baseQuery2 = Register.find()
           .populate('person')
-          .where('manifest').equals(manifest._id)
+          .where('manifest')
+          .equals(manifest._id);
       }
 
       return baseQuery2.exec()
-        .map(function(register){        
-          if(register.person)  {
+        .map(function(register) {
+          if(register.person) {
             return {
               personId: register.person._id,
               documentId: register.person.documentId,
@@ -117,26 +119,26 @@ export function index(req, res) {
               refId: manifest.itinerary.refId,
               manifestId: manifest._id,
               registerId: register._id
-            }
+            };
           } else {
-            console.log("Error: Bad Register, it doens't contain register.person._id, these are the faulty documents");
-            console.log("Manifest");
+            console.log('Error: Bad Register, it does not contain register.person._id, these are the faulty documents');
+            console.log('Manifest');
             console.log(manifest);
-            console.log("Register of manifest _id:" + manifest._id);
+            console.log('Register of manifest _id:', manifest._id);
             console.log(register);
-            console.log("------");
+            console.log('------');
             return {
               personId: 0,
-              documentId: "",
-              name: "",
+              documentId: '',
+              name: '',
               origin: manifest.origin,
               destination: manifest.destination,
               refId: manifest.itinerary.refId,
               manifestId: manifest._id,
               registerId: register._id
-            }
+            };
           }
-       })
+        });
     })
     .filter(m => m != null)
     .then(m => _.flatten(m))
@@ -153,7 +155,7 @@ export function show(req, res) {
 }
 
 // Creates a new Manifest in the DB
-export function create(req, res) {   
+export function create(req, res) {
   return Manifest.createManifest(req.body)
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
