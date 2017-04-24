@@ -10,6 +10,7 @@ var ItinerarySchema = new mongoose.Schema({
 });
 
 ItinerarySchema.index({ refId: 1 }, { unique: true });
+ItinerarySchema.index({ depart: 1 });
 
 ItinerarySchema.statics = {};
 

@@ -22,6 +22,10 @@ var ManifestSchema = new mongoose.Schema({
   register: { type: mongoose.Schema.Types.ObjectId, ref: 'Register' }
 });
 
+ManifestSchema.index({ itinerary: 1 }, { unique: true });
+ManifestSchema.index({ register: 1 }, { unique: true });
+
+
 ManifestSchema.statics = {
   createManifest: function(data) {
     let Manifest = this;

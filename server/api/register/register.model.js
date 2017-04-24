@@ -22,6 +22,14 @@ var RegisterSchema = new mongoose.Schema({
   checkoutDate: { type: Date }
 });
 
+RegisterSchema.index({ manifest: 1 }, { unique: true });
+RegisterSchema.index({ person: 1 }, { unique: true });
+RegisterSchema.index({ seaportCheckin: 1 }, { unique: true });
+RegisterSchema.index({ seaportCheckout: 1 }, { unique: true });
+RegisterSchema.index({ isDenied: 1 });
+RegisterSchema.index({ isOnboard: 1 });
+RegisterSchema.index({ state: 1 });
+
 RegisterSchema.statics = {
   manualSell: function(data) {
     let Register = this;
