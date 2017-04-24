@@ -9,8 +9,7 @@ var ItinerarySchema = new mongoose.Schema({
   arrival: Date
 });
 
-ItinerarySchema.index({ refId: 1 }, { unique: true });
-ItinerarySchema.index({ depart: 1 });
+ItinerarySchema.index({ refId: 1, depart: 1 }, { unique: true });
 
 ItinerarySchema.statics = {};
 
