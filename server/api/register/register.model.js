@@ -72,6 +72,7 @@ RegisterSchema.statics = {
   },
   deniedRegister: function(data) {
     let Register = this;
+
     return Manifest.create(data)
       .then(function(newManifest) {
         return Person.create({
@@ -91,12 +92,12 @@ RegisterSchema.statics = {
             deniedReason: data.deniedReason
           };
 
-          if(data.seaportCheckin) {
-            registerData.seaportCheckin = data.seaportCheckin;
+          if(data.origin) {
+            registerData.seaportCheckin = data.origin;
           }
 
-          if(data.seaportCheckout) {
-            registerData.seaportCheckout = data.seaportCheckout;
+          if(data.destination) {
+            registerData.seaportCheckout = data.destination;
           }
 
           return Register.create(registerData);
