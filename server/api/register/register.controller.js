@@ -251,3 +251,9 @@ export function createManualSell(req, res) {
   .then(respondWithResult(res, 201))
   .catch(handleError(res));
 }
+
+export function deniedRegister(req, res) {
+  return Register.deniedRegister(req.body)
+  .then(respondWithResult(res, 201))
+  .catch(handleError(res));
+}

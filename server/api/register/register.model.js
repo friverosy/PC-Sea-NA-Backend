@@ -63,9 +63,45 @@ RegisterSchema.statics = {
             state: 'checkin'
           });
         })
-        .then(function() {
+        .then(function(newRegister) {
           //console.log("Register");
           //console.log(newRegister);
+          return newManifest;
+        });
+      });
+  },
+  deniedRegister: function(data) {
+    let Register = this;
+    return Manifest.create(data)
+      .then(function(newManifest) {
+        return Person.create({
+          name: data.name,
+          sex: data.sex,
+          resident: data.resident,
+          nationality: data.nationality,
+          documentId: data.documentId,
+          documentType: data.documentType
+        })
+        .then(function(newPerson) {
+          let registerData
+          = {
+            manifest: newManifest._id,
+            person: newPerson._id,
+            isDenied: true,
+            deniedReason: data.deniedReason
+          };
+
+          if(data.seaportCheckin) {
+            registerData.seaportCheckin = data.seaportCheckin;
+          }
+
+          if(data.seaportCheckout) {
+            registerData.seaportCheckout = data.seaportCheckout;
+          }
+
+          return Register.create(registerData);
+        })
+        .then(function(newRegister) {
           return newManifest;
         });
       });
