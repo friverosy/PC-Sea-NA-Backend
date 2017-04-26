@@ -10,6 +10,7 @@ router.get('/status', controller.status);
 router.get('/:id', controller.show);
 router.post('/', controller.create);
 router.post('/manualSell', controller.createManualSell);
+router.post('/deniedRegister', controller.deniedRegister);
 router.put('/:id', controller.upsert);
 router.patch('/:id', controller.patch);
 router.delete('/:id', controller.destroy);

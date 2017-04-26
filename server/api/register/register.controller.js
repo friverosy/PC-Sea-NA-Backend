@@ -142,8 +142,15 @@ export function upsert(req, res) {
       delete req.body._id;
     }
 
+    if(req.body.deniedReason) {
+      req.body.isDenied = true;
+    }
+
     let states = { 0: 'pending', 1: 'checkin', 2: 'checkout' };
     req.body.state = states[req.body.state];
+
+    console.log(req.params.id);
+    console.log(req.body);
 
     return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
     .exec()
@@ -201,14 +208,14 @@ export function status(req, res) {
   })
   .then(function(registers) {
     return registers.map(r => {
-      if(r.person != null) { 
+      if(r.person != null) {
         return {
           documentId: r.person.documentId,
           state: stateId[r.state]
         };
-      } else { 
-        console.log("------");
-        console.log("Corrupt Register, Person is null!:");
+      } else {
+        console.log('------');
+        console.log('Corrupt Register, Person is null!:');
         console.log(r);
         return;
       }
@@ -220,20 +227,26 @@ export function status(req, res) {
 
 export function createManualSell(req, res) {
   // validate required params
-  let requiredParams = [
-    'itinerary',
-    'origin',
-    'destination',
-    'ticketId',
-    'name',
-    'sex',
-    'resident',
-    'nationality',
-    'documentId',
-    'documentType'
-  ];
+  // let requiredParams = [
+  //   'itinerary',
+  //   'origin',
+  //   'destination',
+  //   'ticketId',
+  //   'name',
+  //   'sex',
+  //   'resident',
+  //   'nationality',
+  //   'documentId',
+  //   'documentType'
+  // ];
 
   return Register.manualSell(req.body)
+  .then(respondWithResult(res, 201))
+  .catch(handleError(res));
+}
+
+export function deniedRegister(req, res) {
+  return Register.deniedRegister(req.body)
   .then(respondWithResult(res, 201))
   .catch(handleError(res));
 }

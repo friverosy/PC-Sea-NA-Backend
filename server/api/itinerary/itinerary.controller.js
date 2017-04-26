@@ -71,26 +71,28 @@ function handleError(res, statusCode) {
 
 // Gets a list of Itinerarys
 export function index(req, res) {
-
   let baseQuery;
-  if(req.query.date){
+  if(req.query.date) {
     //console.log("date");
     //console.log(req.query.date);
-    let dateStart = moment(req.query.date).startOf('Day').toISOString();
-    let dateEnd = moment(dateStart).add(1, 'd').toISOString();
+    let dateStart = moment(req.query.date).startOf('Day')
+                    .toISOString();
+    let dateEnd = moment(dateStart).add(1, 'd')
+                    .toISOString();
     //console.log(dateStart);
     //console.log(dateEnd);
     baseQuery = Itinerary.find()
-      .where('depart').gte(dateStart)
-      .where('depart').lt(dateEnd)
+      .where('depart')
+      .gte(dateStart)
+      .where('depart')
+      .lt(dateEnd);
   } else {
-    baseQuery = Itinerary.find()
+    baseQuery = Itinerary.find();
   }
 
   return baseQuery.exec()
     .then(respondWithResult(res))
     .catch(handleError(res));
-    
 }
 
 // Gets a single Itinerary from the DB
@@ -150,16 +152,19 @@ export function destroy(req, res) {
 export function getSeaports(req, res) {
   return Manifest.find()
     .populate('origin destination')
-    .where('itinerary').equals(req.params.id)
+    .where('itinerary')
+    .equals(req.params.id)
     .exec()
-    .map(function(manifest) { 
+    .map(function(manifest) {
       return [
         manifest.origin,
         manifest.destination
-      ]
+      ];
     })
-    .then(function(seaports){
-      return _.uniqBy(_.flatten(seaports), function(s) { return s._id.toString() })
+    .then(function(seaports) {
+      return _.uniqBy(_.flatten(seaports), function(s) {
+        return s._id.toString();
+      });
     })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
@@ -167,15 +172,17 @@ export function getSeaports(req, res) {
 
 export function getRegisters(req, res) {
   return Manifest.find()
-    .where('itinerary').equals(req.params.id)
+    .where('itinerary')
+    .equals(req.params.id)
     .exec()
-    .then(function(manifests){
+    .then(function(manifests) {
       let manifestsIds = manifests.map(m => m._id);
-      
+
       return Register.find()
         .populate('person seaportCheckin seaportCheckout')
         .deepPopulate('manifest.origin manifest.destination')
-        .where('manifest').in(manifestsIds)
+        .where('manifest')
+        .in(manifestsIds);
     })
     .then(respondWithResult(res, 200))
     .catch(handleError(res));
