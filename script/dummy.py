@@ -43,51 +43,93 @@ def postManifest(manifest, itineraryObjectId):
                                                         'reservationStatus':m['estado_detalle_reserva'], 'ticketId':m['ticket'], 'originName':m['origen'],
                                                         'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
+it = 0
 
-itineraries = [
-                {'id_itinerario': 1, 'zarpe': '2016-10-10T01:00:00.000Z', 'codigo_ruta': '205', 'nombre_ruta': 'Chait\xe9n - Ayacara'}, 
-                {'id_itinerario': 2, 'zarpe': '2016-10-11T01:00:00.000Z', 'codigo_ruta': '205', 'nombre_ruta': 'Puerto Montt - Ayacara'},
-              ]
+if it == 0:
+    itineraries = [
+                    {'id_itinerario': 1, 'zarpe': '2016-10-10T01:00:00.000Z', 'codigo_ruta': '205', 'nombre_ruta': 'Chait\xe9n - Ayacara'}, 
+                    {'id_itinerario': 2, 'zarpe': '2016-10-11T01:00:00.000Z', 'codigo_ruta': '205', 'nombre_ruta': 'Puerto Montt - Ayacara'},
+                  ]
+    
+    
+    seaports = [
+                [{'nombre_ubicacion': 'Chaiten', 'id_ubicacion': 1}, {'nombre_ubicacion': 'Ayacara', 'id_ubicacion': 3}],
+                [{'nombre_ubicacion': 'Puerto Montt', 'id_ubicacion': 5}, {'nombre_ubicacion': 'Ayacara', 'id_ubicacion': 3}]
+               ]
+    
+    manifest = [
+                [
+                    {
+                        'codigo_pasajero': '111-1', 'nombre_pasajero': 'juan perez', 'id_itinerario': 1, 
+                        'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M', 
+                        'id_detalle_reserva': 11111, 'destino': 'Ayacara', 'origen': 'Chaiten', 'ticket': '111', 'nacionalidad': 'Chileno(a)', 
+                        'estado_detalle_reserva': 0
+                    },
+                    {
+                        'codigo_pasajero': '222-2', 'nombre_pasajero': 'joel san martin', 'id_itinerario': 1, 
+                        'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M', 
+                        'id_detalle_reserva': 22222, 'destino': 'Ayacara', 'origen': 'Chaiten', 'ticket': '222', 'nacionalidad': 'Chileno(a)', 
+                        'estado_detalle_reserva': 0
+                    }
+                ],
+                [
+                    {
+                        'codigo_pasajero': '333-3', 'nombre_pasajero': 'marcel gutierrez', 'id_itinerario': 2, 
+                        'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M', 
+                        'id_detalle_reserva': 33333, 'destino': 'Ayacara', 'origen': 'Puerto Montt', 'ticket': '333', 'nacionalidad': 'Chileno(a)', 
+                        'estado_detalle_reserva': 0
+                    },
+                    {
+                        'codigo_pasajero': '444-4', 'nombre_pasajero': 'marco ortega', 'id_itinerario': 2, 
+                        'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M', 
+                        'id_detalle_reserva': 44444, 'destino': 'Ayacara', 'origen': 'Puerto Montt', 'ticket': '444', 'nacionalidad': 'Chileno(a)', 
+                        'estado_detalle_reserva': 0
+                    }
+                ]
+               ]
+    
+    for i in range(len(itineraries)):
+        itineraryObjectId = postItinerary(itineraries[i])
+        postPort(seaports[i][0])
+        postPort(seaports[i][1])
+        postManifest(manifest[i], itineraryObjectId)
+    
 
 
-seaports = [
-            [{'nombre_ubicacion': 'Chaiten', 'id_ubicacion': 1}, {'nombre_ubicacion': 'Ayacara', 'id_ubicacion': 3}],
-            [{'nombre_ubicacion': 'Puerto Montt', 'id_ubicacion': 5}, {'nombre_ubicacion': 'Ayacara', 'id_ubicacion': 3}]
-           ]
-
-manifest = [
-            [
-                {
-                    'codigo_pasajero': '111-1', 'nombre_pasajero': 'juan perez', 'id_itinerario': 1, 
-                    'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M', 
-                    'id_detalle_reserva': 11111, 'destino': 'Ayacara', 'origen': 'Chaiten', 'ticket': '111', 'nacionalidad': 'Chileno(a)', 
-                    'estado_detalle_reserva': 0
-                },
-                {
-                    'codigo_pasajero': '222-2', 'nombre_pasajero': 'joel san martin', 'id_itinerario': 1, 
-                    'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M', 
-                    'id_detalle_reserva': 22222, 'destino': 'Ayacara', 'origen': 'Chaiten', 'ticket': '222', 'nacionalidad': 'Chileno(a)', 
-                    'estado_detalle_reserva': 0
-                }
-            ],
-            [
-                {
-                    'codigo_pasajero': '333-3', 'nombre_pasajero': 'marcel gutierrez', 'id_itinerario': 2, 
-                    'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M', 
-                    'id_detalle_reserva': 33333, 'destino': 'Ayacara', 'origen': 'Puerto Montt', 'ticket': '333', 'nacionalidad': 'Chileno(a)', 
-                    'estado_detalle_reserva': 0
-                },
-                {
-                    'codigo_pasajero': '444-4', 'nombre_pasajero': 'marco ortega', 'id_itinerario': 2, 
-                    'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M', 
-                    'id_detalle_reserva': 44444, 'destino': 'Ayacara', 'origen': 'Puerto Montt', 'ticket': '444', 'nacionalidad': 'Chileno(a)', 
-                    'estado_detalle_reserva': 0
-                }
-            ]
-           ]
-
-for i in range(len(itineraries)):
-    itineraryObjectId = postItinerary(itineraries[i])
-    postPort(seaports[i][0])
-    postPort(seaports[i][1])
-    postManifest(manifest[i], itineraryObjectId)
+if it == 1:
+    itineraries = [
+                    {'id_itinerario': 1, 'zarpe': '2016-10-10T05:00:00.000Z', 'codigo_ruta': '205', 'nombre_ruta': 'Chait\xe9n - Ayacara'},
+                    {'id_itinerario': 2, 'zarpe': '2016-10-11T01:00:00.000Z', 'codigo_ruta': '205', 'nombre_ruta': 'Puerto Montt - Ayacara'},
+                  ]
+    
+    
+    seaports = [
+                [{'nombre_ubicacion': 'Chaiten', 'id_ubicacion': 1}, {'nombre_ubicacion': 'Ayacara', 'id_ubicacion': 3}],
+                [{'nombre_ubicacion': 'Puerto Montt', 'id_ubicacion': 5}, {'nombre_ubicacion': 'Ayacara', 'id_ubicacion': 3}]
+               ]
+    
+    manifest = [
+                [
+                    {
+                        'codigo_pasajero': '777-7', 'nombre_pasajero': 'user 555', 'id_itinerario': 1,
+                        'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M',
+                        'id_detalle_reserva': 55555, 'destino': 'Ayacara', 'origen': 'Chaiten', 'ticket': '555', 'nacionalidad': 'Chileno(a)',
+                        'estado_detalle_reserva': 0
+                    }
+                ],
+                [
+                    {
+                        'codigo_pasajero': '888-8', 'nombre_pasajero': 'user 666', 'id_itinerario': 2,
+                        'nombre_cod_documento': 'C\xe9dula de Identidad', 'residente': 'No', 'id_itinerario_relacionado': None, 'sexo': 'M',
+                        'id_detalle_reserva': 66666, 'destino': 'Ayacara', 'origen': 'Puerto Montt', 'ticket': '666', 'nacionalidad': 'Chileno(a)',
+                        'estado_detalle_reserva': 0
+                    }
+                ]
+               ]
+    
+    for i in range(len(itineraries)):
+        itineraryObjectId = postItinerary(itineraries[i])
+        postPort(seaports[i][0])
+        postPort(seaports[i][1])
+        postManifest(manifest[i], itineraryObjectId)
+    
