@@ -171,18 +171,25 @@ export function getSeaports(req, res) {
 }
 
 export function getRegisters(req, res) {
+    
   return Manifest.find()
     .where('itinerary')
     .equals(req.params.id)
     .exec()
     .then(function(manifests) {
       let manifestsIds = manifests.map(m => m._id);
-
-      return Register.find()
+      
+      let registersBaseQuery = Register.find()
         .populate('person seaportCheckin seaportCheckout')
         .deepPopulate('manifest.origin manifest.destination')
         .where('manifest')
         .in(manifestsIds);
+      
+      if (req.query.denied == 'true' || req.query.denied == 'false') {
+        return registersBaseQuery.where('isDenied').equals(JSON.parse(req.query.denied)).exec()
+      } else {
+        return registersBaseQuery.exec()
+      }
     })
     .then(respondWithResult(res, 200))
     .catch(handleError(res));
