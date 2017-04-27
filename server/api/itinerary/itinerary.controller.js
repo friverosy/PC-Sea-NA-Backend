@@ -73,14 +73,10 @@ function handleError(res, statusCode) {
 export function index(req, res) {
   let baseQuery;
   if(req.query.date) {
-    //console.log("date");
-    //console.log(req.query.date);
     let dateStart = moment(req.query.date).startOf('Day')
                     .toISOString();
     let dateEnd = moment(dateStart).add(1, 'd')
                     .toISOString();
-    //console.log(dateStart);
-    //console.log(dateEnd);
     baseQuery = Itinerary.find()
       .where('depart')
       .gte(dateStart)
@@ -88,6 +84,10 @@ export function index(req, res) {
       .lt(dateEnd);
   } else {
     baseQuery = Itinerary.find();
+  }
+
+  if(req.query.active) {
+    baseQuery.where('active').equals(req.query.active);
   }
 
   return baseQuery.exec()
@@ -167,6 +167,16 @@ export function getSeaports(req, res) {
       });
     })
     .then(respondWithResult(res, 201))
+    .catch(handleError(res));
+}
+
+// Gets active itineraries
+export function getActives(req, res) {
+  let baseQuery;
+  baseQuery = Itinerary.find();
+
+  return baseQuery.exec()
+    .then(respondWithResult(res))
     .catch(handleError(res));
 }
 

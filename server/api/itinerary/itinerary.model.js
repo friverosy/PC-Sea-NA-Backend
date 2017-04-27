@@ -7,7 +7,7 @@ var ItinerarySchema = new mongoose.Schema({
   name: String,
   depart: Date,
   arrival: Date,
-  isActive: { type: Boolean, default: true }
+  active: { type: Boolean, default: true }
 });
 
 ItinerarySchema.index({ refId: 1, depart: 1 }, { unique: true });
