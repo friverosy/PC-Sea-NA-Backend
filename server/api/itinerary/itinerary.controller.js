@@ -156,6 +156,9 @@ export function getSeaports(req, res) {
     .equals(req.params.id)
     .exec()
     .map(function(manifest) {
+      //console.log("---------");
+      //console.log("manifest");
+      //console.log(manifest);
       return [
         manifest.origin,
         manifest.destination
@@ -163,7 +166,13 @@ export function getSeaports(req, res) {
     })
     .then(function(seaports) {
       return _.uniqBy(_.flatten(seaports), function(s) {
-        return s._id.toString();
+        if(s)  {
+          return s._id.toString();
+        } else {
+          console.log("Error: manifest has seaport that does not exist");
+          console.log("----tshen2-------");
+          console.log(s);
+        }
       });
     })
     .then(respondWithResult(res, 201))
