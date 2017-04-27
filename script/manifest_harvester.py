@@ -14,11 +14,18 @@ NAV_API_URL = 'http://localhost:9001/api/'
 class nav_db:
     def __init__(self):
        self._db = None
+       self._pp = pprint.PrettyPrinter(indent=4)
        pass
 
     def connect(self, today):
        self._db = sqlite3.connect('nav-' + today + '.db')
-       self._pp = pprint.PrettyPrinter(indent=4)
+       #check 
+       cursor = self._db.cursor()
+       try: 
+           cursor.execute("SELECT count(*) from manifests");
+       except sqlite3.OperationalError:
+           print "creating the table"
+           self.createDB()
 
     def createDB(self):
         cursor = self._db.cursor()
