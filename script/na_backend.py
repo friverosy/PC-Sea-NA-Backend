@@ -5,7 +5,6 @@ from StringIO import StringIO
 import getopt
 import pprint
 
-TOKEN = '860a2e8f6b125e4c7b9bc83709a0ac1ddac9d40f'
 TOKEN_NAV = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OGRiM2I3NGI0ODRjOTIyOTVmMTE3MWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE0OTA3NjI2MTl9.pHVwA2u0iaVhjJ_ljU0NtFR_y0EGCwKXsLgIKSUcCK8'
 NAV_API_URL = 'http://localhost:9001/api/'
 
@@ -25,6 +24,26 @@ def getItineraryObjectId(mdate, itinerary_id):
             return str(itinerary['_id'])
      
     return "-1"
+
+def getItineraryActive():
+    #print 'Itinerary:', itinerary_id
+
+    url_nav_manifest = NAV_API_URL + 'itineraries?active=true'
+    response = requests.get(url_nav_manifest , headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+    itineraries = json.loads(response.text)
+
+    return itineraries
+
+def getItineraryInactive():
+    #print 'Itinerary:', itinerary_id
+
+    url_nav_manifest = NAV_API_URL + 'itineraries?active=false'
+    response = requests.get(url_nav_manifest , headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+    itineraries = json.loads(response.text)
+
+    return itineraries
 
 def postItinerary(itinerary):
     #print itinerary
