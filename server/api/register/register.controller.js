@@ -130,20 +130,13 @@ export function create(req, res) {
 
 // Upserts the given Register in the DB at the specified ID
 export function upsert(req, res) {
+  console.log(`upsert with body =  ${JSON.stringify(req.body)}`);
   //console.log(">>>>>>>>>>>>>>>> req.params.id");
   //console.log(req.params.id);
   //console.log(req.params);
-  if(req.params.id == 'null') {
-    //TODO: this is the case of unauthorized attemp to aboard. We should log the
-    //      info to show them in a separted view
-    console.log('Invalid passenger trying to checkin, logging the information ...');
-    //return Register.create({
-    //
-    //})
-    //.exec()
-    //.then(respondWithResult(res))
-    //.catch(handleError(res));
-    return res.json({ unathorized: 1 });
+  if(req.params['id'] == 'null')  {
+    console.log("Ivalid passenger trying to checkin, logging the information ...");
+    //return res.josn({unauthorized: 1});
   } else {
     if(req.body._id) {
       delete req.body._id;
