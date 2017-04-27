@@ -73,14 +73,10 @@ function handleError(res, statusCode) {
 export function index(req, res) {
   let baseQuery;
   if(req.query.date) {
-    //console.log("date");
-    //console.log(req.query.date);
     let dateStart = moment(req.query.date).startOf('Day')
                     .toISOString();
     let dateEnd = moment(dateStart).add(1, 'd')
                     .toISOString();
-    //console.log(dateStart);
-    //console.log(dateEnd);
     baseQuery = Itinerary.find()
       .where('depart')
       .gte(dateStart)
@@ -88,6 +84,10 @@ export function index(req, res) {
       .lt(dateEnd);
   } else {
     baseQuery = Itinerary.find();
+  }
+
+  if(req.query.active) {
+    baseQuery.where('active').equals(req.query.active);
   }
 
   return baseQuery.exec()
@@ -179,19 +179,36 @@ export function getSeaports(req, res) {
     .catch(handleError(res));
 }
 
+// Gets active itineraries
+export function getActives(req, res) {
+  let baseQuery;
+  baseQuery = Itinerary.find();
+
+  return baseQuery.exec()
+    .then(respondWithResult(res))
+    .catch(handleError(res));
+}
+
 export function getRegisters(req, res) {
+    
   return Manifest.find()
     .where('itinerary')
     .equals(req.params.id)
     .exec()
     .then(function(manifests) {
       let manifestsIds = manifests.map(m => m._id);
-
-      return Register.find()
+      
+      let registersBaseQuery = Register.find()
         .populate('person seaportCheckin seaportCheckout')
         .deepPopulate('manifest.origin manifest.destination')
         .where('manifest')
         .in(manifestsIds);
+      
+      if (req.query.denied == 'true' || req.query.denied == 'false') {
+        return registersBaseQuery.where('isDenied').equals(JSON.parse(req.query.denied)).exec()
+      } else {
+        return registersBaseQuery.exec()
+      }
     })
     .then(respondWithResult(res, 200))
     .catch(handleError(res));
