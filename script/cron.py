@@ -77,7 +77,7 @@ def postItinerary(itinerary):
     #print itinerary
 
     url_nav_itinerary = NAV_API_URL + 'itineraries/'
-    response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+    response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta'], 'active':'true'}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
     itineraryObjectId = ''
 
