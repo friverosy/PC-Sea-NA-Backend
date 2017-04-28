@@ -18,7 +18,7 @@ class nav_db:
        pass
 
     def connect(self, today):
-       self._db = sqlite3.connect('nav-' + today + '.db')
+       self._db = sqlite3.connect('/home/tzu/na-cron-logs/db/nav-' + today + '.db')
        #check 
        cursor = self._db.cursor()
        try: 
