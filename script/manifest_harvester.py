@@ -14,12 +14,16 @@ NAV_API_URL = 'http://localhost:9001/api/'
 class nav_db:
     def __init__(self):
        self._db = None
+       self._DB_DIR = "/home/tzu/na-cron-logs/db"
+       self._closed_itineraries  = self.load_closed_itineraries()
        self._pp = pprint.PrettyPrinter(indent=4)
        pass
 
-    def connect(self, today):
-       self._db = sqlite3.connect('/home/tzu/na-cron-logs/db/nav-' + today + '.db')
-       #check 
+    def connect(self, intinerary_id):
+       filename = self._DB_DIR + '/' + 'nav-' + str(intinerary_id) + '.db'
+       print filename
+       self._db = sqlite3.connect(filename)
+       #check if the db exists already, otherwise create it. 
        cursor = self._db.cursor()
        try: 
            cursor.execute("SELECT count(*) from manifests");
@@ -45,6 +49,23 @@ class nav_db:
                 ticket TEXT)
          ''')
         self._db.commit()
+    def load_closed_itineraries(self):
+        itineraries  = {1828: {'name': 'Puerto Montt - Chaiten'}, 
+               1857: {'name': 'Chaiten - Puerto Montt'}}
+        return itineraries
+
+    def isClosedItinerary(self, refId): 
+        print self._closed_itineraries
+        
+        try:
+            refId = self._closed_itineraries[refId]
+            #it's a closed ititnerary
+            return True
+        except KeyError:
+            #this refId doesn't exist in the dictionary, therefore it must be not closed yet.
+            return False
+
+
     def add_new(self, manifest): 
         print ''
         print "\tProcessing manifest:"
@@ -99,8 +120,11 @@ class nav_db:
             self._db.commit()   
             print("\t\tmanifest added to sqlite")
             return 1
+
+
+
+#---- end of nav_dv class
         
-myDB = nav_db()
     
 def getItineraries(date):
     #print 'Getting itineraries from:', date
@@ -187,7 +211,7 @@ def postPort(port):
     url_nav_port = NAV_API_URL + 'seaports/'
     response = requests.post(url_nav_port, data={'locationId':port['id_ubicacion'], 'locationName':port['nombre_ubicacion']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
-def postManifest(manifest, itineraryObjectId, port):
+def postManifest(manifest, refId, itineraryObjectId, port):
     counter = 0
     counter_new = 0
     for m in manifest['manifiesto_embarque']:
@@ -196,7 +220,7 @@ def postManifest(manifest, itineraryObjectId, port):
         #print ''
 
         counter = counter  + 1;
-        result = myDB.add_new(m)
+        result = navDB.add_new(m)
         if result > 0: 
             counter_new = counter_new + 1
             url_nav_manifest = NAV_API_URL + 'manifests/'
@@ -206,8 +230,8 @@ def postManifest(manifest, itineraryObjectId, port):
                                                         'reservationStatus':0, 'ticketId':m['ticket'], 'originName':m['origen'], 
                                                         'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
-    print "\t====> the number of new manifests at %s  are: %d" % (port, counter_new)
-    print "\t====> the number of processed manifests at %s are: %d" % (port, counter)
+    print "\t====> refId: %s , the number of new manifests at %s  are: %d" % (refId, port, counter_new)
+    print "\t====> refId: %d , the number of processed manifests at %s are: %d" % (refId, port, counter)
 
 def postUpdateManifest(manifest, itineraryObjectId, currentPort):
     total_delta_manifest = 0
@@ -254,8 +278,6 @@ for opt, arg in opts:
     elif opt in ("-d", "--date"):
 
         date = arg
-        myDB.connect(date)
-        #myDB.createDB()
 
         pp = pprint.PrettyPrinter(indent=4)
         
@@ -266,8 +288,17 @@ for opt, arg in opts:
         #print 'Getting Ports Associated to each itinerary'
         for keyword in itineraries:
             for itinerary in itineraries[keyword]:
-                print "Processing manifest of the itinerary: %s " % (itinerary["id_itinerario"])
+                refId = itinerary["id_itinerario"]
+                print "Processing manifest of the itinerary: %d " % (refId)
+                
+                navDB = nav_db()
+                if navDB.isClosedItinerary(refId):
+                    print "itinerary %d is already closed, no need to process it." % refId
+                    continue 
+                else: 
+                    print "itinerary %d is a valid itinerary." % refId
 
+                navDB.connect(itinerary["id_itinerario"])
                 # POST itinerary
                 if do_post:
                     itineraryObjectId = postItinerary(itinerary)
@@ -296,7 +327,7 @@ for opt, arg in opts:
                         #pp.pprint(manifest)
 
                         if do_post: 
-                            postManifest(manifest, itineraryObjectId, p['nombre_ubicacion'])
+                            postManifest(manifest, refId, itineraryObjectId, p['nombre_ubicacion'])
                         print "listo puerto %s" % (p['nombre_ubicacion']) 
                         print ""
 
