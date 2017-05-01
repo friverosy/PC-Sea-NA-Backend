@@ -8,7 +8,7 @@ var PersonSchema = new mongoose.Schema({
   resident: String,
   nationality: String,
   documentType: String,
-  documentId: String
+  documentId: { type: String, uppercase: true, required: true }
 });
 
 export default mongoose.model('Person', PersonSchema);
