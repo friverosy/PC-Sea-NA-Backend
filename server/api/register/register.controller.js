@@ -136,7 +136,7 @@ export function upsert(req, res) {
   //console.log(req.params);
   if(req.params['id'] == 'null')  {
     console.log("Ivalid passenger trying to checkin, logging the information ...");
-    //return res.josn({unauthorized: 1});
+    return res.json({error: 'please do not use this endpoint without sending the id'});
   } else {
     if(req.body._id) {
       delete req.body._id;
