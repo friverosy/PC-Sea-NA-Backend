@@ -34,8 +34,10 @@ RegisterSchema.statics = {
   manualSell: function(data) {
     let Register = this;
     data.isOnboard = true;
-    //console.log("----Manual Sell, data received:");
-    //console.log(data)
+
+    console.log("----Manual Sell, data received:");
+    console.log(data)
+
     return Manifest.create(data)
       .then(function(newManifest) {
         //return Person.findOneAndUpdate(
@@ -72,6 +74,9 @@ RegisterSchema.statics = {
   },
   deniedRegister: function(data) {
     let Register = this;
+
+    console.log("----Denied Regisger, data received:");
+    console.log(data)
 
     return Manifest.create(data)
       .then(function(newManifest) {
