@@ -31,6 +31,12 @@ ManifestSchema.statics = {
     let Manifest = this;
     let now = new Date();
 
+    if(!data.itinerary) {
+      console.log("can not create a Manifest without a itinerary";
+      console.log(data); 
+      throw new Error(`no itinerary was passed in the req.body`);
+    }
+
     return Promise.all([
       Seaport.find().where('locationName')
         .equals(new RegExp(`^${data.originName}`, 'i'))
@@ -52,6 +58,7 @@ ManifestSchema.statics = {
         console.log(`requesting data.destinationName = ${data.destinationName}. Got the following = ${JSON.stringify(candidateDestinations)}`);
         throw new Error(`no seaports with locationName = ${data.originName} found`);
       }
+
 
       return Manifest.create(data)
         .then(function(newManifest) {
