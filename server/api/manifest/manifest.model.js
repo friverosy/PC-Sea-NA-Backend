@@ -32,7 +32,7 @@ ManifestSchema.statics = {
     let now = new Date();
 
     if(!data.itinerary) {
-      console.log("can not create a Manifest without a itinerary";
+      console.log("can not create a Manifest without a itinerary");
       console.log(data); 
       throw new Error(`no itinerary was passed in the req.body`);
     }
