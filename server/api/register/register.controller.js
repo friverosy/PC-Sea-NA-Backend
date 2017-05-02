@@ -146,6 +146,16 @@ export function upsert(req, res) {
       req.body.isDenied = true;
     }
 
+    if(req.body.state == 1) {
+      //map checkinDate, seaportCheckin 
+      req.body.checkinDate = req.body.date;
+      req.body.seaportCheckin = req.body.seaport;
+    } else if(req.body.state = 2) {
+      //map checkoutDate, seaportCheckout 
+      req.body.checkoutDate = req.body.date;
+      req.body.seaportCheckout = req.body.seaport;
+    }
+
     let states = { 0: 'pending', 1: 'checkin', 2: 'checkout' };
     req.body.state = states[req.body.state];
 
