@@ -211,6 +211,8 @@ export function status(req, res) {
   })
   .then(function(manifests) {
     return Register.find()
+      .where('isDenied')
+      .equals(false)
       .populate('person')
       .where('manifest')
       .in(manifests.map(m => m._id))

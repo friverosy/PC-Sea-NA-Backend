@@ -95,6 +95,8 @@ export function index(req, res) {
       let baseQuery2;
       if(req.query.date) {
         baseQuery2 = Register.find()
+          .where('isDenied')
+          .equals(false)
           .populate('person')
           .where('manifest')
           .equals(manifest._id)
@@ -102,6 +104,8 @@ export function index(req, res) {
           .gte(moment(req.query.date).toISOString());
       } else {
         baseQuery2 = Register.find()
+          .where('isDenied')
+          .equals(false)
           .populate('person')
           .where('manifest')
           .equals(manifest._id);
