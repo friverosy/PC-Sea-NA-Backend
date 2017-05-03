@@ -165,7 +165,7 @@ export function getSeaports(req, res) {
       ];
     })
     .then(function(seaports) {
-      return _.uniqBy(_.flatten(seaports), function(s) {
+      return _.filter(_.uniqBy(_.flatten(seaports), function(s) {
         if(s)  {
           return s._id.toString();
         } else {
@@ -173,7 +173,7 @@ export function getSeaports(req, res) {
           console.log("----tshen2-------");
           console.log(s);
         }
-      });
+      }), s => s != null);
     })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
