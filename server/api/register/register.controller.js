@@ -150,7 +150,7 @@ export function upsert(req, res) {
       //map checkinDate, seaportCheckin 
       req.body.checkinDate = req.body.date;
       req.body.seaportCheckin = req.body.seaport;
-    } else if(req.body.state = 2) {
+    } else if(req.body.state == 2) {
       //map checkoutDate, seaportCheckout 
       req.body.checkoutDate = req.body.date;
       req.body.seaportCheckout = req.body.seaport;
