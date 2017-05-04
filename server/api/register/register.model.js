@@ -18,7 +18,7 @@ var RegisterSchema = new mongoose.Schema({
   manifest: { type: mongoose.Schema.Types.ObjectId, ref: 'Manifest' },
   seaportCheckin: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
   seaportCheckout: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
-  checkinDate: { type: Date, default: Date.now },
+  checkinDate: { type: Date },
   checkoutDate: { type: Date }
 });
 
