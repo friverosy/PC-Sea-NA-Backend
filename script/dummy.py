@@ -8,6 +8,7 @@ TOKEN = '860a2e8f6b125e4c7b9bc83709a0ac1ddac9d40f'
 TOKEN_NAV = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OGRiM2I3NGI0ODRjOTIyOTVmMTE3MWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE0OTA3NjI2MTl9.pHVwA2u0iaVhjJ_ljU0NtFR_y0EGCwKXsLgIKSUcCK8'
 NAV_API_URL = 'http://localhost:9001/api/'
 
+it = 0
 
 def postItinerary(itinerary):
     #print itinerary
@@ -32,10 +33,6 @@ def postPort(port):
 
 def postManifest(manifest, itineraryObjectId):
     for m in manifest:
-        #print m
-        #print ''
-        #print ''
-
         url_nav_manifest = NAV_API_URL + 'manifests/'
         response = requests.post(url_nav_manifest, data={'name':m['nombre_pasajero'], 'sex':m['sexo'], 'resident':m['residente'],
                                                         'nationality':m['nacionalidad'], 'documentId':m['codigo_pasajero'],
@@ -43,7 +40,16 @@ def postManifest(manifest, itineraryObjectId):
                                                         'reservationStatus':m['estado_detalle_reserva'], 'ticketId':m['ticket'], 'originName':m['origen'],
                                                         'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
-it = 0
+def getItineraryObjectId(mdate, itinerary_id):
+    url_nav_manifest = NAV_API_URL + 'itineraries?date=' + mdate
+    response = requests.get(url_nav_manifest , headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+    itineraries = json.loads(response.text)
+    for itinerary in itineraries:
+        if(itinerary['refId'] == itinerary_id):
+            return str(itinerary['_id'])
+
+    return "-1"
 
 if it == 0:
     itineraries = [

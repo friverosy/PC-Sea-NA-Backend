@@ -5,6 +5,7 @@ mongoose.Promise = require('bluebird');
 
 import Person from '../person/person.model';
 import Manifest from '../manifest/manifest.model';
+import Itinerary from '../itinerary/itinerary.model';
 
 var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
@@ -38,39 +39,37 @@ RegisterSchema.statics = {
     console.log("----Manual Sell, data received:");
     console.log(data)
 
-    return Manifest.create(data)
-      .then(function(newManifest) {
-        //return Person.findOneAndUpdate(
-        //  { documentId: data.documentId },
-        //  { name: data.name, sex: data.sex, resident: data.resident, nationality: data.nationality, documentId: data.documentId, documentType: data.documentType },
-        //  { upsert: true, setDefaultsOnInsert: true, runValidators: true }
-        //console.log("Manifest");
-        //console.log(newManifest);
-        return Person.create({
-          name: data.name,
-          sex: data.sex,
-          resident: data.resident,
-          nationality: data.nationality,
-          documentId: data.documentId,
-          documentType: data.documentType
-        })
-        .then(function(newPerson) {
-          //console.log("Person");
-          //console.log(newPerson);
-          return Register.create({
-            manifest: newManifest._id,
-            seaportCheckin: data.origin,
-            person: newPerson._id,
-            isOnboard: true,
-            state: 'checkin'
-          });
-        })
-        .then(function(newRegister) {
-          //console.log("Register");
-          //console.log(newRegister);
-          return newManifest;
-        });
-      });
+    return Itinerary.findById(data.itinerary).exec()
+      .then(function(itinerary){
+        if(itinerary.active == true){
+          return Manifest.create(data)
+            .then(function(newManifest) {
+              return Person.create({
+                name: data.name,
+                sex: data.sex,
+                resident: data.resident,
+                nationality: data.nationality,
+                documentId: data.documentId,
+                documentType: data.documentType
+              })
+              .then(function(newPerson) {
+                return Register.create({
+                  manifest: newManifest._id,
+                  seaportCheckin: data.origin,
+                  person: newPerson._id,
+                  isOnboard: true,
+                  state: 'checkin'
+                });
+              })
+              .then(function(newRegister) {
+                return newManifest;
+              });
+            });
+        } else {
+          console.log("Cannot create manualSell -> Itinerary is not active");
+          throw new Error(`Cannot create manualSell -> Itinerary is not active`);
+        }
+      })
   },
   deniedRegister: function(data) {
     let Register = this;
@@ -78,39 +77,47 @@ RegisterSchema.statics = {
     console.log("----Denied Regisger, data received:");
     console.log(data)
 
-    return Manifest.create(data)
-      .then(function(newManifest) {
-        return Person.create({
-          name: data.name,
-          sex: data.sex,
-          resident: data.resident,
-          nationality: data.nationality,
-          documentId: data.documentId,
-          documentType: data.documentType
-        })
-        .then(function(newPerson) {
-          let registerData
-          = {
-            manifest: newManifest._id,
-            person: newPerson._id,
-            isDenied: true,
-            deniedReason: data.deniedReason
-          };
+    return Itinerary.findById(data.itinerary).exec()
+      .then(function(itinerary){
+        if(itinerary.active == true){
+          return Manifest.create(data)
+            .then(function(newManifest) {
+              return Person.create({
+                name: data.name,
+                sex: data.sex,
+                resident: data.resident,
+                nationality: data.nationality,
+                documentId: data.documentId,
+                documentType: data.documentType
+              })
+              .then(function(newPerson) {
+                let registerData
+                = {
+                  manifest: newManifest._id,
+                  person: newPerson._id,
+                  isDenied: true,
+                  deniedReason: data.deniedReason
+                };
 
-          if(data.origin) {
-            registerData.seaportCheckin = data.origin;
-          }
+                if(data.origin) {
+                  registerData.seaportCheckin = data.origin;
+                }
 
-          if(data.destination) {
-            registerData.seaportCheckout = data.destination;
-          }
+                if(data.destination) {
+                  registerData.seaportCheckout = data.destination;
+                }
 
-          return Register.create(registerData);
-        })
-        .then(function(newRegister) {
-          return newManifest;
-        });
-      });
+                return Register.create(registerData);
+              })
+              .then(function(newRegister) {
+                return newManifest;
+              });
+            });
+        } else {
+          console.log("Cannot create deniedRegister -> Itinerary is not active");
+          throw new Error(`Cannot create deniedRegister -> Itinerary is not active`);
+        }
+    })
   }
 };
 
