@@ -3,7 +3,7 @@
 import mongoose from 'mongoose';
 
 var PersonSchema = new mongoose.Schema({
-  name: { type: String, uppercase: true, required: true },
+  name: { type: String, uppercase: true, required: false },
   sex: String,
   resident: String,
   nationality: String,
