@@ -57,6 +57,7 @@ RegisterSchema.statics = {
                   manifest: newManifest._id,
                   seaportCheckin: data.origin,
                   person: newPerson._id,
+                  checkinDate: data.date,
                   isOnboard: true,
                   state: 'checkin'
                 });
