@@ -85,8 +85,10 @@ class nav_db:
         sexo = manifest['sexo']
         ticket = manifest['ticket']
 
-
-        cursor.execute("SELECT * from manifests where codigo_pasajero = '" + codigo_pasajero + "'");
+        
+        sSQL = "SELECT * from manifests where codigo_pasajero = '" + codigo_pasajero + "' and origen = '" + origen + "'"
+        #print sSQL
+        cursor.execute(sSQL)
         if(len(cursor.fetchall()) > 0):
             print "\t\tthis manifest is already in the system, skip" 
             return 0
