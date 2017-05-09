@@ -90,6 +90,10 @@ export function index(req, res) {
     baseQuery.where('active').equals(req.query.active);
   }
 
+  if(req.query.refId) {
+    baseQuery.where('refId').equals(req.query.refId);
+  }
+
   return baseQuery.exec()
     .then(respondWithResult(res))
     .catch(handleError(res));

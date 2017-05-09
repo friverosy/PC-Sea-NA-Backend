@@ -166,6 +166,23 @@ def getItineraryObjectId(mdate, itinerary_id):
      
     return "-1"
 
+def getItineraryStatus(itinerary_id):
+    print 'Itinerary:', itinerary_id
+
+    url_nav_manifest = NAV_API_URL + 'itineraries?refId=' + str(itinerary_id)
+    #print url_nav_manifest
+    response = requests.get(url_nav_manifest , headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+    itineraries = json.loads(response.text)
+    #print "------------"
+    for itinerary in itineraries:
+        #print itinerary
+        if(itinerary['refId'] == itinerary_id):
+            #print "Bingo, found the ObjectId for refId: %d" % itinerary_id 
+            return str(itinerary['active'])
+     
+    return "-1"
+
 
 def getInitialManifest(itinerary_id, port_id):
     #print 'Itinerary:', itinerary_id, 'Port:', port_id
@@ -294,11 +311,20 @@ for opt, arg in opts:
                 print "Processing manifest of the itinerary: %d " % (refId)
                 
                 navDB = nav_db()
-                if navDB.isClosedItinerary(refId):
+                #if navDB.isClosedItinerary(refId):
+                #    print "itinerary %d is already closed, no need to process it." % refId
+                #    continue 
+                #else: 
+                #    print "itinerary %d is a valid itinerary." % refId
+          
+                itineraryStatus = getItineraryStatus(refId)
+                print "The status of the itinerary %s is: %s" % (refId, str(itineraryStatus))
+                if str(itineraryStatus) == 'False': 
                     print "itinerary %d is already closed, no need to process it." % refId
                     continue 
                 else: 
                     print "itinerary %d is a valid itinerary." % refId
+
 
                 navDB.connect(itinerary["id_itinerario"])
                 # POST itinerary
