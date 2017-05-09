@@ -71,7 +71,8 @@ function handleError(res, statusCode) {
 // Gets a list of Manifests
 export function index(req, res) {
   let baseQuery = Manifest.find().populate('itinerary');
-  //console.log(moment(req.query.date));
+  console.log("requesting manifests from refId=" + req.query.itinerary + ", since");
+  console.log(moment(req.query.date));
 
   return baseQuery
     .lean()
