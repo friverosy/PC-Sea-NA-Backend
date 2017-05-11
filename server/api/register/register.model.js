@@ -97,7 +97,8 @@ RegisterSchema.statics = {
                   manifest: newManifest._id,
                   person: newPerson._id,
                   isDenied: true,
-                  deniedReason: data.deniedReason
+                  deniedReason: data.deniedReason,
+                  checkinDate: data.date
                 };
 
                 if(data.origin) {
