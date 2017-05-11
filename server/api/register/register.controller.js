@@ -214,16 +214,19 @@ export function status(req, res) {
       .where('isDenied')
       .equals(false)
       .populate('person')
+      .populate('manifest')
       .where('manifest')
       .in(manifests.map(m => m._id))
       .exec();
   })
   .then(function(registers) {
     return registers.map(r => {
+       
       if(r.person != null) {
         return {
           documentId: r.person.documentId,
-          state: stateId[r.state]
+          state: stateId[r.state],
+          origin: r.manifest.origin
         };
       } else {
         console.log('------');
