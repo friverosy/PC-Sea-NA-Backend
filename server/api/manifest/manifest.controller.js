@@ -14,6 +14,7 @@ import jsonpatch from 'fast-json-patch';
 import moment from 'moment';
 import Manifest from './manifest.model';
 import Register from '../register/register.model';
+import mongoose from 'mongoose';
 
 import * as _ from 'lodash';
 
@@ -95,14 +96,26 @@ export function index(req, res) {
       //console.log(manifest);
       let baseQuery2;
       if(req.query.date) {
+        //console.log("manifest.id= " + manifest._id.getTimestamp());
+        var timestamp = new Date(req.query.date);
+        //console.log("timestamp=" + timestamp);
+        timestamp.setHours(timestamp.getHours() + 3); //convert CLT to UTC
+        //console.log("timestamp in UTC=" + timestamp);
+        var hexSeconds = Math.floor(timestamp/1000).toString(16);
+        //console.log("hex=" + hexSeconds);
+        var myobjId = mongoose.Types.ObjectId(hexSeconds + "0000000000000000");
+        //console.log("hex=" + myobjId);
+        
         baseQuery2 = Register.find()
           .where('isDenied')
           .equals(false)
           .populate('person')
           .where('manifest')
           .equals(manifest._id)
-          .where('checkinDate')
-          .gte(moment(req.query.date).toISOString());
+          .where('_id')
+          .gte(myobjId);
+          //.where('checkinDate')
+          //.gte(moment(req.query.date).toISOString());
       } else {
         baseQuery2 = Register.find()
           .where('isDenied')
