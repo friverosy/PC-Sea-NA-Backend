@@ -18,6 +18,10 @@ User.find({}).remove()
       name: 'Admin',
       username: 'admin',
       password: 'admin'
+    }, {
+      name: 'Diego Eterovic',
+      username: 'deterovic',
+      password: 'navuser'
     })
     .then(() => {
       console.log('finished populating users');
