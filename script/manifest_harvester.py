@@ -449,46 +449,46 @@ for opt, arg in opts:
 
                 navDB.connect(itinerary["id_itinerario"])
                 #reset the process status in order to find deleted manifests, which should be have the field 'processed' = 0 after the loop. 
-#                navDB.reset_processing_status()
-#
-#                # POST itinerary
-#                if do_post:
-#                    itineraryObjectId = postItinerary(itinerary)
-# 
-#                # GET ports
-#                ports = getPorts(itinerary["id_itinerario"])
-#                print "Ports associated to the itinerary: %s, itinerary " % (itinerary["id_itinerario"])
-#                print "itinerary : %s " % itineraryObjectId
-#                pp.pprint(ports)
-#
-#                total_manifests = 0
-#
-#                #print 'Getting Initial Manifest Associated to each itinerary and port'
-#                for port_id in ports:
-#                    for p in ports[port_id]:
-#                        print 'posting port: ' + p['nombre_ubicacion']
-#                        # POST Port
-#                        if do_post:
-#                            postPort(p)
-#                        
-#                    for p in ports[port_id]:
-#                        # POST Manifest
-#                        manifest = getInitialManifest(itinerary["id_itinerario"], p['id_ubicacion'])
-#                        print "\tThere are %d entries in the manifest of the itinerary: %s / port: %s " % (len(manifest['manifiesto_embarque']), itinerary["id_itinerario"], p['nombre_ubicacion'])
-#                        total_manifests = total_manifests + len(manifest['manifiesto_embarque'])
-#                        #pp.pprint(manifest)
-#
-#                        if do_post: 
-#                            postManifest(manifest, refId, itineraryObjectId, p['nombre_ubicacion'])
-#                        print "listo puerto %s" % (p['nombre_ubicacion']) 
-#                        print ""
-#
+                navDB.reset_processing_status()
+
+                # POST itinerary
+                if do_post:
+                    itineraryObjectId = postItinerary(itinerary)
+ 
+                # GET ports
+                ports = getPorts(itinerary["id_itinerario"])
+                print "Ports associated to the itinerary: %s, itinerary " % (itinerary["id_itinerario"])
+                print "itinerary : %s " % itineraryObjectId
+                pp.pprint(ports)
+
+                total_manifests = 0
+
+                #print 'Getting Initial Manifest Associated to each itinerary and port'
+                for port_id in ports:
+                    for p in ports[port_id]:
+                        print 'posting port: ' + p['nombre_ubicacion']
+                        # POST Port
+                        if do_post:
+                            postPort(p)
+                        
+                    for p in ports[port_id]:
+                        # POST Manifest
+                        manifest = getInitialManifest(itinerary["id_itinerario"], p['id_ubicacion'])
+                        print "\tThere are %d entries in the manifest of the itinerary: %s / port: %s " % (len(manifest['manifiesto_embarque']), itinerary["id_itinerario"], p['nombre_ubicacion'])
+                        total_manifests = total_manifests + len(manifest['manifiesto_embarque'])
+                        #pp.pprint(manifest)
+
+                        if do_post: 
+                            postManifest(manifest, refId, itineraryObjectId, p['nombre_ubicacion'])
+                        print "listo puerto %s" % (p['nombre_ubicacion']) 
+                        print ""
+
                 navDB.remove_deleted_manifests()
-#                print "==> Itinerary: %s, itinerary " % (itinerary["id_itinerario"])
-#                print "==> Total number of received manifest %d" %  total_manifests 
-#                print ""
-#                print ""
-#                print ""
+                print "==> Itinerary: %s, itinerary " % (itinerary["id_itinerario"])
+                print "==> Total number of received manifest %d" %  total_manifests 
+                print ""
+                print ""
+                print ""
 
     elif opt in ("-u", "--update"):
         update_time = arg

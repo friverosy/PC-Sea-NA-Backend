@@ -143,7 +143,8 @@ export function index(req, res) {
               refId: manifest.itinerary.refId,
               manifestId: manifest._id,
               registerId: register._id,
-              isOnboard: register.isOnboard
+              isOnboard: register.isOnboard,
+              reservationStatus: manifest.reservationStatus
             };
           } else {
             console.log('Error: Bad Register, it does not contain register.person._id, these are the faulty documents');
