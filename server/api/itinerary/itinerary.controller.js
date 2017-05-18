@@ -198,6 +198,8 @@ export function getRegisters(req, res) {
   return Manifest.find()
     .where('itinerary')
     .equals(req.params.id)
+    .where('reservationStatus')
+    .equals(1)
     .exec()
     .then(function(manifests) {
       let manifestsIds = manifests.map(m => m._id);
