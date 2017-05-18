@@ -30,11 +30,17 @@ function respondWithResult(res, statusCode) {
 
 function patchUpdates(patches) {
   return function(entity) {
+    console.log("entity to be patched");
+    console.log(entity);
+    console.log("patches");
+    console.log(patches);
     try {
       jsonpatch.apply(entity, patches, /*validate*/ true);
     } catch(err) {
       return Promise.reject(err);
     }
+    console.log("entity after patch");
+    console.log(entity);
 
     return entity.save();
   };
@@ -192,12 +198,17 @@ export function upsert(req, res) {
 
 // Updates an existing Manifest in the DB
 export function patch(req, res) {
+  console.log("patching manifest, patch:");
+  console.log(req.body);
+  console.log("objectId to be patched:");
+  console.log(req.params.id);
+
   if(req.body._id) {
     delete req.body._id;
   }
   return Manifest.findById(req.params.id).exec()
     .then(handleEntityNotFound(res))
-    .then(patchUpdates(req.body))
+    .then(patchUpdates([req.body]))
     .then(respondWithResult(res))
     .catch(handleError(res));
 }

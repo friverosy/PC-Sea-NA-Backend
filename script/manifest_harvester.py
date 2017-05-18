@@ -86,7 +86,7 @@ class nav_db:
             objectId = m[14]
             print "change manifest with objectId = %s to disable" % (objectId)
             print url_nav_manifest
-            response = requests.patch(url_nav_manifest + objectId, data={"op":"replace", "path":"/reservationStatus", "value": "-1"}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+            response = requests.patch(url_nav_manifest + objectId, data={"op":"replace", "path":"/reservationStatus", "value": -1}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
             print "response"
             print response.content
 
@@ -448,7 +448,7 @@ for opt, arg in opts:
 
 
                 navDB.connect(itinerary["id_itinerario"])
-#                #reset the process status in order to find deleted manifests, which should be have the field 'processed' = 0 after the loop. 
+                #reset the process status in order to find deleted manifests, which should be have the field 'processed' = 0 after the loop. 
 #                navDB.reset_processing_status()
 #
 #                # POST itinerary
