@@ -16,6 +16,7 @@ var ManifestSchema = new mongoose.Schema({
   reservationId: Number,
   reservationStatus: Number,
   ticketId: String,
+  createdAt: { type: Date, default: Date.now },
 
   origin: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
   destination: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
