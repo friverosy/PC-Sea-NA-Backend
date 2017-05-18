@@ -78,7 +78,14 @@ class nav_db:
         cursor.execute(sSQL)
         data = cursor.fetchall()
         print data 
-        
+        for m in data:
+            print "change the reservationStatus of the manifest to deleted (-1)"
+            #(10, u'5725976-0', u'Chaiten', 452792, 1924, None, u'Chileno(a)', u'Cdula de Identidad', u'EDUARDO BEIZA', u'Quellon', u'No', u'M', u'262679', 0)
+            url_nav_manifest = NAV_API_URL + 'manifests/'
+            print "change manifest with documentId = %s to disable" % (m[1])
+            print url_nav_manifest
+            response = requests.put(url_nav_manifest+'/12345', data={'documentId':m[1], 'reservationStatus':1}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+            print response
 
 
     def add_new(self, manifest): 
@@ -311,8 +318,9 @@ def postManifest(manifest, refId, itineraryObjectId, port):
             response = requests.post(url_nav_manifest, data={'name':m['nombre_pasajero'], 'sex':m['sexo'], 'resident':m['residente'], 
                                                         'nationality':m['nacionalidad'], 'documentId':m['codigo_pasajero'], 
                                                         'documentType':m['nombre_cod_documento'], 'reservationId':m['id_detalle_reserva'], 
-                                                        'reservationStatus':0, 'ticketId':m['ticket'], 'originName':m['origen'], 
+                                                        'reservationStatus':1, 'ticketId':m['ticket'], 'originName':m['origen'], 
                                                         'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+            print response
 
     print "\t====> refId: %s , the number of new manifests at %s  are: %d" % (refId, port, counter_new)
     print "\t====> refId: %d , the number of processed manifests at %s are: %d" % (refId, port, counter)
