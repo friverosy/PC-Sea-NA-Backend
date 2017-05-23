@@ -14,8 +14,8 @@ NAV_API_URL = 'http://localhost:9001/api/'
 class nav_db:
     def __init__(self):
        self._db = None
-       #self._DB_DIR = "/home/tzu/na-cron-logs/db"
-       self._DB_DIR = "/data/sqlite/db"
+       self._DB_DIR = "/home/tzu/na-cron-logs/db"
+       #self._DB_DIR = "/data/sqlite/db"
        self._closed_itineraries  = self.load_closed_itineraries()
        self._pp = pprint.PrettyPrinter(indent=4)
        pass
@@ -34,7 +34,7 @@ class nav_db:
 
     def createDB(self):
         cursor = self._db.cursor()
-	#manifests table
+        #manifests table
         cursor.execute('''
             CREATE TABLE manifests(id INTEGER PRIMARY KEY, 
                 codigo_pasajero TEXT, 
@@ -52,11 +52,11 @@ class nav_db:
                 processed INT, 
                 objectId TEXT)
          ''')
-	#itineraries table
+        #itineraries table
         cursor.execute('''
             CREATE TABLE itineraries(id INTEGER PRIMARY KEY, 
                 refId INTEGER,
-		name TEXT,
+                name TEXT,
                 depart TEXT)
          ''')
 
@@ -100,8 +100,34 @@ class nav_db:
             print "response"
             print response.content
 
+    def add_new_itinerary(self, itinerary):
+        print ''
+        print "\tProcessing itinerary:"
+        pp.pprint(itinerary)
+        cursor = self._db.cursor()
+        
+        refId = itinerary['id_itinerario']
+        depart = itinerary['zarpe']
+        name = itinerary['nombre_ruta']
 
-    def add_new(self, manifest): 
+        sSQL = "SELECT * from itineraries where refId= '%s'" % (refId)
+        print "sSQL= %s" % sSQL
+        cursor.execute(sSQL)
+        data = cursor.fetchall()
+        print len(data)
+        print data
+
+        if(len(data) == 0):
+            sSQL = "INSERT INTO itineraries(refId, depart, name) VALUES(?,?,?)"
+            cursor.execute(sSQL, (refId, depart, name))
+            self._db.commit()
+            print("\t\titinerary added to sqlite")
+            return 1
+        else:
+            return 0
+        
+
+    def add_new(self, manifest):
         print ''
         print "\tProcessing manifest:"
         pp.pprint(manifest)
@@ -342,8 +368,18 @@ def getUpdatedManifest(itinerary_id, port_id, update_time):
 def postItinerary(itinerary):
     #print itinerary
 
-    url_nav_itinerary = NAV_API_URL + 'itineraries/'
-    response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+    result = navDB.add_new_itinerary(itinerary)
+    if(result > 0):
+       #new itienerary, sent all the data to mongodb
+       print "    new itineray, refId= %s, set the 'depart' to %s" % (itinerary['id_itinerario'], itinerary['zarpe'])
+       url_nav_itinerary = NAV_API_URL + 'itineraries/'
+       response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+    else: 
+       #NAV-, itinerary already in mongodb, don't change the date
+       print "    existent itineray, refId= %s, do not change the 'depart' atribute" % (itinerary['id_itinerario'])
+       url_nav_itinerary = NAV_API_URL + 'itineraries/'
+       response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+       
 
     itineraryObjectId = ''
 
