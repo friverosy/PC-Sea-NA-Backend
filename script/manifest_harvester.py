@@ -14,7 +14,8 @@ NAV_API_URL = 'http://localhost:9001/api/'
 class nav_db:
     def __init__(self):
        self._db = None
-       self._DB_DIR = "/home/tzu/na-cron-logs/db"
+       #self._DB_DIR = "/home/tzu/na-cron-logs/db"
+       self._DB_DIR = "/data/sqlite/db"
        self._closed_itineraries  = self.load_closed_itineraries()
        self._pp = pprint.PrettyPrinter(indent=4)
        pass
@@ -33,6 +34,7 @@ class nav_db:
 
     def createDB(self):
         cursor = self._db.cursor()
+	#manifests table
         cursor.execute('''
             CREATE TABLE manifests(id INTEGER PRIMARY KEY, 
                 codigo_pasajero TEXT, 
@@ -50,6 +52,14 @@ class nav_db:
                 processed INT, 
                 objectId TEXT)
          ''')
+	#itineraries table
+        cursor.execute('''
+            CREATE TABLE itineraries(id INTEGER PRIMARY KEY, 
+                refId INTEGER,
+		name TEXT,
+                depart TEXT)
+         ''')
+
         self._db.commit()
     def load_closed_itineraries(self):
         itineraries  = {1828: {'name': 'Puerto Montt - Chaiten'}, 
