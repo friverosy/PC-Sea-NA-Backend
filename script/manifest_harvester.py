@@ -297,6 +297,7 @@ for opt, arg in opts:
     elif opt in ("-d", "--date"):
 
         date = arg
+        print "Processing with date='%s'" % (date)
 
         pp = pprint.PrettyPrinter(indent=4)
         
