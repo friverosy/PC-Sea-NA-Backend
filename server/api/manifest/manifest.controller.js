@@ -98,6 +98,15 @@ export function index(req, res) {
         return manifest.itinerary != null;
       }
     })
+    .filter(function(manifest) {
+      if(req.query.cancel) {
+        //console.log("--------> only cancelled tickets");
+        //console.log("--------> reservationStatus = " + manifest.reservationStatus);
+        return manifest.reservationStatus == -1;
+      } else {
+        return manifest;
+      }
+    })
     .map(function(manifest) {
       //console.log(manifest);
       let baseQuery2;
