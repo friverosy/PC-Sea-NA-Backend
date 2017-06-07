@@ -105,7 +105,7 @@ export function index(req, res) {
         //console.log("manifest.id= " + manifest._id.getTimestamp());
         var timestamp = new Date(req.query.date);
         //console.log("timestamp=" + timestamp);
-        timestamp.setHours(timestamp.getHours() + 3); //convert CLT to UTC
+        timestamp.setHours(timestamp.getHours() + 4); //convert CLT to UTC
         //console.log("timestamp in UTC=" + timestamp);
         var hexSeconds = Math.floor(timestamp/1000).toString(16);
         //console.log("hex=" + hexSeconds);
@@ -144,7 +144,8 @@ export function index(req, res) {
               manifestId: manifest._id,
               registerId: register._id,
               isOnboard: register.isOnboard,
-              reservationStatus: manifest.reservationStatus
+              reservationStatus: manifest.reservationStatus,
+              createdAt:  manifest.createdAt
             };
           } else {
             console.log('Error: Bad Register, it does not contain register.person._id, these are the faulty documents');
