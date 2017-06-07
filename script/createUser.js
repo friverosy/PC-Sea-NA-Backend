@@ -29,7 +29,7 @@ function encryptPassword(password, salt) {
 
 var username = argv.username;
 var salt     = crypto.randomBytes(16).toString('base64');
-var password = encryptPassword(argv.password, salt);
+var password = encryptPassword(String(argv.password), salt);
 var name     = argv.name;
 var role     = argv.role;
 
