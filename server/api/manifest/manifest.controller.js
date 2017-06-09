@@ -114,7 +114,8 @@ export function index(req, res) {
         //console.log("manifest.id= " + manifest._id.getTimestamp());
         var timestamp = new Date(req.query.date);
         //console.log("timestamp=" + timestamp);
-        timestamp.setHours(timestamp.getHours() + 4); //convert CLT to UTC
+        //timestamp.setHours(timestamp.getHours() + 4);
+        //We always assume that the client will send the request in UTC. 
         //console.log("timestamp in UTC=" + timestamp);
         var hexSeconds = Math.floor(timestamp/1000).toString(16);
         //console.log("hex=" + hexSeconds);
