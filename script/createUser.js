@@ -27,9 +27,9 @@ function encryptPassword(password, salt) {
   return crypto.pbkdf2Sync(password, new Buffer(salt, 'base64'), defaultIterations, defaultKeyLength, 'SHA1').toString('base64');
 }
 
-var username = argv.username;
+var username = argv.username.toLowerCase();
 var salt     = crypto.randomBytes(16).toString('base64');
-var password = encryptPassword(argv.password, salt);
+var password = encryptPassword(String(argv.password), salt);
 var name     = argv.name;
 var role     = argv.role;
 
