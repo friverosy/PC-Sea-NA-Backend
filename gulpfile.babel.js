@@ -342,7 +342,7 @@ gulp.task('clean:dist', () => del([`${paths.dist}/!(.git*|.openshift|Procfile)**
 gulp.task('copy:server', () => {
     return gulp.src([
         'package.json',
-        'script'
+        'script/**'
     ], {cwdbase: true})
         .pipe(gulp.dest(paths.dist));
 });
