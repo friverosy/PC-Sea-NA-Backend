@@ -8,14 +8,15 @@ import sqlite3
 
 TOKEN = '860a2e8f6b125e4c7b9bc83709a0ac1ddac9d40f'
 TOKEN_NAV = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OGRiM2I3NGI0ODRjOTIyOTVmMTE3MWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE0OTA3NjI2MTl9.pHVwA2u0iaVhjJ_ljU0NtFR_y0EGCwKXsLgIKSUcCK8'
-NAV_API_URL = 'http://localhost:9001/api/'
+#NAV_API_URL = 'http://localhost:9001/api/'
+NAV_API_URL = 'http://localhost:5002/api/'
 
 
 class nav_db:
     def __init__(self):
        self._db = None
-       self._DB_DIR = "/home/tzu/na-cron-logs/db"
-       #self._DB_DIR = "/data/sqlite/db"
+       #self._DB_DIR = "/home/tzu/na-cron-logs/db"
+       self._DB_DIR = "/home/blueshadows/logs/na-cron-logs/db"
        self._closed_itineraries  = self.load_closed_itineraries()
        self._pp = pprint.PrettyPrinter(indent=4)
        pass
@@ -101,7 +102,7 @@ class nav_db:
             print response.content
 
     def enable_processed_manifests(self):
-        print "Looking for deleted manifests ..."
+        print "Looking for processed manifests ..."
         cursor = self._db.cursor()
         sSQL = "SELECT * from manifests where processed = 1"
         print "sSQL=" + sSQL
@@ -109,11 +110,11 @@ class nav_db:
         data = cursor.fetchall()
         print data 
         for m in data:
-            print "change the reservationStatus of the manifest to deleted (1)"
+            print "change the reservationStatus of the manifest to enable (1)"
             #(1, u'25711561-5', u'Chaiten', 453345, 1924, None, u'Chileno(a)', u'Cdula de Identidad', u'ADAM VAUGHN', u'Quellon', u'No', u'M', u'263069', 0, u'591d355dd94afa7a90d5d0e5')
             url_nav_manifest = NAV_API_URL + 'manifests/'
             objectId = m[14]
-            print "change manifest with objectId = %s to disable" % (objectId)
+            print "change manifest with objectId = %s to enable" % (objectId)
             print url_nav_manifest
             response = requests.patch(url_nav_manifest + objectId, data={"op":"replace", "path":"/reservationStatus", "value": 1}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
             print "response"
