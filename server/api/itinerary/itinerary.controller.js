@@ -222,8 +222,9 @@ export function getRegisters(req, res) {
 // export person list as a excel file
 export function exportRegistersExcel(req, res) {
   let itineraryId = req.params.id;
+  let summary = req.query.summary;
 
-  return Itinerary.exportRegistersExcel(itineraryId, true)
+  return Itinerary.exportRegistersExcel(itineraryId, summary, true)
     .then(excel => {
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', 'attachment; filename=registers-export.xlsx');
