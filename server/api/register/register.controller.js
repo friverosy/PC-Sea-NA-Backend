@@ -94,7 +94,8 @@ export function create(req, res) {
 
   requiredParams.forEach(function(p) {
     if(!_.includes(_.keys(req.body), p)) {
-      return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
+      res.status(401).json({ messsage: `required parameter "${p}" is missing` });
+      return false;
     }
   });
 

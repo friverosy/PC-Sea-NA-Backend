@@ -3,6 +3,8 @@
 import mongoose from 'mongoose';
 mongoose.Promise = require('bluebird');
 
+import { EventEmitter } from 'events';
+
 import Person from '../person/person.model';
 import Manifest from '../manifest/manifest.model';
 import Itinerary from '../itinerary/itinerary.model';
@@ -31,7 +33,47 @@ RegisterSchema.index({ isDenied: 1 });
 RegisterSchema.index({ isOnboard: 1 });
 RegisterSchema.index({ state: 1 });
 
+var RegisterEvents = new EventEmitter();
+RegisterEvents.setMaxListeners(0);
+
+//-------------------------------------------------------
+//                  Pre/Post Hooks
+//-------------------------------------------------------
+
+function emitEvent(event) {
+  return function(doc) { 
+    console.log(`emitting scoket.io event...`)
+    
+    RegisterEvents.emit(`${event}:${doc._id}`, doc);
+    RegisterEvents.emit(event, doc);
+  }
+}
+
+RegisterSchema.post('save', function(doc) {
+  emitEvent('save')(doc);
+});
+
+RegisterSchema.post('remove', function(doc) {
+  emitEvent('remove')(doc);
+});
+
+RegisterSchema.post('update', function(doc) {
+  emitEvent('update')(doc);
+});
+
+RegisterSchema.post('findOneAndUpdate', function(doc) {
+  emitEvent('findOneAndUpdate')(doc);
+});
+
+
+//-------------------------------------------------------
+//                     Statics
+//-------------------------------------------------------
+
 RegisterSchema.statics = {
+  getEventEmitter: function() {
+    return RegisterEvents;
+  },
   manualSell: function(data) {
     let Register = this;
     data.isOnboard = true;
