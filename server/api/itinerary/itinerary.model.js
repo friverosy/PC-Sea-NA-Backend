@@ -83,13 +83,13 @@ ItinerarySchema.statics = {
 			for(var i in registers) {
 				let rowA;
 
-				if (registers[i].state == "checkin"){
+				//if (registers[i].state == "checkin"){
 					rowA = [registers[i].manifest.reservationId, registers[i].manifest.ticketId, registers[i].person.name, registers[i].person.resident,
 						registers[i].person.nationality, registers[i].person.sex, registers[i].person.documentType, registers[i].person.documentId,
 						registers[i].manifest.origin.locationName, registers[i].manifest.destination.locationName, "Embarcado"];
 
 					data.push(rowA);
-				}
+				//}
         	}
 
         	var buffer = xlsx.build([{ name: 'mySheetName', data: data }]);
