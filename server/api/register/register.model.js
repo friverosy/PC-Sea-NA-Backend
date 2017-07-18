@@ -134,13 +134,20 @@ RegisterSchema.statics = {
                 documentType: data.documentType
               })
               .then(function(newPerson) {
+                var m_date;
+                if(!data.date) {
+                  m_date = new Date().toUTCString();
+                } else {
+                  m_date = data.date;
+                }
+                
                 let registerData
                 = {
                   manifest: newManifest._id,
                   person: newPerson._id,
                   isDenied: true,
                   deniedReason: data.deniedReason,
-                  checkinDate: data.date
+                  checkinDate: m_date
                 };
 
                 if(data.origin) {
