@@ -134,10 +134,8 @@ RegisterSchema.statics = {
                 documentType: data.documentType
               })
               .then(function(newPerson) {
-                var m_date;
-                if(!data.date) {
-                  m_date = new Date().toUTCString();
-                } else {
+                var m_date = new Date().toLocaleString('es-ES', { timeZone: 'America/Santiago' })
+                if(data.date) {
                   m_date = data.date;
                 }
                 
