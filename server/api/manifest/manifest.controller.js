@@ -144,10 +144,12 @@ export function index(req, res) {
       return baseQuery2.exec()
         .map(function(register) {
           if(register.person) {
+            var m_name = String(register.person.name);
+
             return {
               personId: register.person._id,
               documentId: register.person.documentId,
-              name: register.person.name,
+              name: m_name.trim(),
               origin: manifest.origin,
               destination: manifest.destination,
               refId: manifest.itinerary.refId,
