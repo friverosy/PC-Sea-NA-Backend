@@ -8,13 +8,15 @@ import sqlite3
 
 TOKEN = '860a2e8f6b125e4c7b9bc83709a0ac1ddac9d40f'
 TOKEN_NAV = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OGRiM2I3NGI0ODRjOTIyOTVmMTE3MWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE0OTA3NjI2MTl9.pHVwA2u0iaVhjJ_ljU0NtFR_y0EGCwKXsLgIKSUcCK8'
-NAV_API_URL = 'http://localhost:9001/api/'
+#NAV_API_URL = 'http://localhost:9001/api/'
+NAV_API_URL = 'http://localhost:5002/api/'
 
 
 class nav_db:
     def __init__(self):
        self._db = None
-       self._DB_DIR = "/home/tzu/na-cron-logs/db"
+       #self._DB_DIR = "/home/tzu/na-cron-logs/db"
+       self._DB_DIR = "/home/blueshadows/logs/na-cron-logs/db"
        self._closed_itineraries  = self.load_closed_itineraries()
        self._pp = pprint.PrettyPrinter(indent=4)
        pass
@@ -33,6 +35,7 @@ class nav_db:
 
     def createDB(self):
         cursor = self._db.cursor()
+        #manifests table
         cursor.execute('''
             CREATE TABLE manifests(id INTEGER PRIMARY KEY, 
                 codigo_pasajero TEXT, 
@@ -47,8 +50,17 @@ class nav_db:
                 residente TEXT,
                 sexo TEXT,
                 ticket TEXT, 
-                processed INT)
+                processed INT, 
+                objectId TEXT)
          ''')
+        #itineraries table
+        cursor.execute('''
+            CREATE TABLE itineraries(id INTEGER PRIMARY KEY, 
+                refId INTEGER,
+                name TEXT,
+                depart TEXT)
+         ''')
+
         self._db.commit()
     def load_closed_itineraries(self):
         itineraries  = {1828: {'name': 'Puerto Montt - Chaiten'}, 
@@ -74,14 +86,68 @@ class nav_db:
         print "Looking for deleted manifests ..."
         cursor = self._db.cursor()
         sSQL = "SELECT * from manifests where processed = 0"
-        print sSQL
+        print "sSQL=" + sSQL
         cursor.execute(sSQL)
         data = cursor.fetchall()
         print data 
+        for m in data:
+            print "change the reservationStatus of the manifest to deleted (-1)"
+            #(1, u'25711561-5', u'Chaiten', 453345, 1924, None, u'Chileno(a)', u'Cdula de Identidad', u'ADAM VAUGHN', u'Quellon', u'No', u'M', u'263069', 0, u'591d355dd94afa7a90d5d0e5')
+            url_nav_manifest = NAV_API_URL + 'manifests/'
+            objectId = m[14]
+            print "change manifest with objectId = %s to disable" % (objectId)
+            print url_nav_manifest
+            response = requests.patch(url_nav_manifest + objectId, data={"op":"replace", "path":"/reservationStatus", "value": -1}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+            print "response"
+            print response.content
+
+    def enable_processed_manifests(self):
+        print "Looking for processed manifests ..."
+        cursor = self._db.cursor()
+        sSQL = "SELECT * from manifests where processed = 1"
+        print "sSQL=" + sSQL
+        cursor.execute(sSQL)
+        data = cursor.fetchall()
+        print data 
+        for m in data:
+            print "change the reservationStatus of the manifest to enable (1)"
+            #(1, u'25711561-5', u'Chaiten', 453345, 1924, None, u'Chileno(a)', u'Cdula de Identidad', u'ADAM VAUGHN', u'Quellon', u'No', u'M', u'263069', 0, u'591d355dd94afa7a90d5d0e5')
+            url_nav_manifest = NAV_API_URL + 'manifests/'
+            objectId = m[14]
+            print "change manifest with objectId = %s to enable" % (objectId)
+            print url_nav_manifest
+            response = requests.patch(url_nav_manifest + objectId, data={"op":"replace", "path":"/reservationStatus", "value": 1}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+            print "response"
+            print response.content
+
+    def add_new_itinerary(self, itinerary):
+        print ''
+        print "\tProcessing itinerary:"
+        pp.pprint(itinerary)
+        cursor = self._db.cursor()
+        
+        refId = itinerary['id_itinerario']
+        depart = itinerary['zarpe']
+        name = itinerary['nombre_ruta']
+
+        sSQL = "SELECT * from itineraries where refId= '%s'" % (refId)
+        print "sSQL= %s" % sSQL
+        cursor.execute(sSQL)
+        data = cursor.fetchall()
+        print len(data)
+        print data
+
+        if(len(data) == 0):
+            sSQL = "INSERT INTO itineraries(refId, depart, name) VALUES(?,?,?)"
+            cursor.execute(sSQL, (refId, depart, name))
+            self._db.commit()
+            print("\t\titinerary added to sqlite")
+            return 1
+        else:
+            return 0
         
 
-
-    def add_new(self, manifest): 
+    def add_new(self, manifest):
         print ''
         print "\tProcessing manifest:"
         pp.pprint(manifest)
@@ -101,21 +167,6 @@ class nav_db:
         ticket = manifest['ticket'].encode('ascii', 'ignore')
         processed = "1"
         
-        print "ticket = " + ticket
-        
-        #sSQL = "SELECT * from manifests where codigo_pasajero = '" + codigo_pasajero + "' and origen = '" + origen + "'"
-        
-        #sSQL = "SELECT * from manifests where codigo_pasajero = '" +  codigo_pasajero + "'" \
-        #       + " and destino ='" + destino + "'" \
-        #       + " and id_detalle_reserva = " + id_detalle_reserva  \
-        #       + " and id_itinerario = " + id_itinerario \
-        #       + " and nacionalidad ='" +  nacionalidad + "'" \
-        #       + " and nombre_cod_documento ='" + nombre_cod_documento + "'" \
-        #       + " and nombre_pasajero ='" + nombre_pasajero + "'" \
-        #       + " and origen = '" + origen + "'" \
-        #       + " and residente ='" + residente + "'" \
-        #       + " and sexo ='" + sexo + "'" 
-        #       #+ " and ticket ='%s'" % (str(ticket)) 
         sSQL = "SELECT * from manifests where codigo_pasajero = '%s'" \
                "  and destino = '%s'" \
                "  and id_detalle_reserva = %d" \
@@ -186,6 +237,65 @@ class nav_db:
             return 0
         else:
             print "\t\tError, there are more than one register that match this manifest, this shouldn't happen"
+            return 0
+                
+
+    def updateObjectId(self, manifest, objectId): 
+        cursor = self._db.cursor()
+        
+        codigo_pasajero = manifest['codigo_pasajero']
+        destino = manifest['destino'].encode('ascii', 'ignore') 
+        id_detalle_reserva = manifest['id_detalle_reserva'] 
+        id_itinerario = manifest['id_itinerario']
+        id_itinerario_relacionado = manifest['id_itinerario_relacionado']
+        nacionalidad  = manifest['nacionalidad'].encode('ascii','ignore')
+        nombre_cod_documento = manifest['nombre_cod_documento'].encode('ascii','ignore')
+        nombre_pasajero  = manifest['nombre_pasajero'].encode('ascii','ignore')
+        origen = manifest['origen'].encode('ascii', 'ignore')
+        residente = manifest['residente'].encode('ascii', 'ignore')
+        sexo = manifest['sexo'].encode('ascii', 'ignore')
+        ticket = manifest['ticket'].encode('ascii', 'ignore')
+        processed = "1"
+        
+        sSQL = "SELECT * from manifests where codigo_pasajero = '%s'" \
+               "  and destino = '%s'" \
+               "  and id_detalle_reserva = %d" \
+               "  and id_itinerario = %d" \
+               "  and nacionalidad ='%s'" \
+               "  and nombre_cod_documento ='%s'" \
+               "  and nombre_pasajero = '%s'" \
+               "  and origen ='%s'" \
+               "  and residente ='%s'" \
+               "  and sexo ='%s'" \
+               "  and ticket =%s" % (codigo_pasajero, 
+                                     destino, 
+                                     id_detalle_reserva, 
+                                     id_itinerario, 
+                                     nacionalidad,
+                                     nombre_cod_documento,
+                                     nombre_pasajero, 
+                                     origen, 
+                                     residente, 
+                                     sexo, 
+                                     ticket )
+        print sSQL
+        cursor.execute(sSQL)
+        data = cursor.fetchall()
+        print len(data)
+        print data
+
+        if(len(data) == 1):
+            _id = data[0][0]
+            print "\t\tFound the manifest, updating the objectId" 
+            print "id=%d" % _id
+            
+            sSQL = "UPDATE manifests SET objectId = '%s' where id = %d" % (objectId, _id)
+            print sSQL
+            cursor.execute(sSQL)
+            self._db.commit()   
+            return 0
+        else:
+            print "\t\tError, there must be only one register that match this manifest, I found %d, this shouldn't happen" % len(data)
             return 0
                 
 
@@ -278,8 +388,18 @@ def getUpdatedManifest(itinerary_id, port_id, update_time):
 def postItinerary(itinerary):
     #print itinerary
 
-    url_nav_itinerary = NAV_API_URL + 'itineraries/'
-    response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+    result = navDB.add_new_itinerary(itinerary)
+    if(result > 0):
+       #new itienerary, sent all the data to mongodb
+       print "    new itineray, refId= %s, set the 'depart' to %s" % (itinerary['id_itinerario'], itinerary['zarpe'])
+       url_nav_itinerary = NAV_API_URL + 'itineraries/'
+       response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+    else: 
+       #NAV-, itinerary already in mongodb, don't change the date
+       print "    existent itineray, refId= %s, do not change the 'depart' atribute" % (itinerary['id_itinerario'])
+       url_nav_itinerary = NAV_API_URL + 'itineraries/'
+       response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+       
 
     itineraryObjectId = ''
 
@@ -311,8 +431,10 @@ def postManifest(manifest, refId, itineraryObjectId, port):
             response = requests.post(url_nav_manifest, data={'name':m['nombre_pasajero'], 'sex':m['sexo'], 'resident':m['residente'], 
                                                         'nationality':m['nacionalidad'], 'documentId':m['codigo_pasajero'], 
                                                         'documentType':m['nombre_cod_documento'], 'reservationId':m['id_detalle_reserva'], 
-                                                        'reservationStatus':0, 'ticketId':m['ticket'], 'originName':m['origen'], 
+                                                        'reservationStatus':1, 'ticketId':m['ticket'], 'originName':m['origen'], 
                                                         'destinationName':m['destino'], 'itinerary':itineraryObjectId}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+            manifest_object_id = eval(response.content)['_id']
+            navDB.updateObjectId(m, manifest_object_id)
 
     print "\t====> refId: %s , the number of new manifests at %s  are: %d" % (refId, port, counter_new)
     print "\t====> refId: %d , the number of processed manifests at %s are: %d" % (refId, port, counter)
@@ -429,6 +551,7 @@ for opt, arg in opts:
                         print ""
 
                 navDB.remove_deleted_manifests()
+                navDB.enable_processed_manifests()
                 print "==> Itinerary: %s, itinerary " % (itinerary["id_itinerario"])
                 print "==> Total number of received manifest %d" %  total_manifests 
                 print ""

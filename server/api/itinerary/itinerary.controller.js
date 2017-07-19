@@ -194,10 +194,11 @@ export function getActives(req, res) {
 }
 
 export function getRegisters(req, res) {
-    
   return Manifest.find()
     .where('itinerary')
     .equals(req.params.id)
+    .where('reservationStatus')
+    .equals(1)
     .exec()
     .then(function(manifests) {
       let manifestsIds = manifests.map(m => m._id);
@@ -215,5 +216,20 @@ export function getRegisters(req, res) {
       }
     })
     .then(respondWithResult(res, 200))
+    .catch(handleError(res));
+}
+
+// export person list as a excel file
+export function exportRegistersExcel(req, res) {
+  let itineraryId = req.params.id;
+  let summary = req.query.summary;
+
+  return Itinerary.exportRegistersExcel(itineraryId, summary, true)
+    .then(excel => {
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=registers-export.xlsx');
+    
+      return res.end(excel);
+    })
     .catch(handleError(res));
 }
