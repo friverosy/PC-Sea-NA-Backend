@@ -80,18 +80,31 @@ ItinerarySchema.statics = {
         	}
 
         	data.push(['Nro Reserva', 'Nro Ticket', 'Pasajero', 'Residente', 'Nacionalidad', 'Sexo', 'Documento', 'Nro Documento', 'Ciudad Origen', 'Ciudad Destino', 'Estado']);
-			for(var i in registers) {
-				let rowA;
+		for(var i in registers) {
+			let rowA;
+                        var sState = "";
+                        //console.log("=====registers====");
+                        //console.log(registers[i]);
 
-				//if (registers[i].state == "checkin"){
-					rowA = [registers[i].manifest.reservationId, registers[i].manifest.ticketId, registers[i].person.name, registers[i].person.resident,
-						registers[i].person.nationality, registers[i].person.sex, registers[i].person.documentType, registers[i].person.documentId,
-						registers[i].manifest.origin.locationName, registers[i].manifest.destination.locationName, "Embarcado"];
+			//if (registers[i].state == "checkin"){
+                        if(registers[i].isDenied == false) { 
 
-					data.push(rowA);
-				//}
-        	}
+                          if(registers[i].isOnboard == true) {
+                            sState = "Embarcado";
+                          } else {
+                            sState = "No Embarcado";
+                          }
 
+			  rowA = [registers[i].manifest.reservationId, registers[i].manifest.ticketId, registers[i].person.name, registers[i].person.resident, registers[i].person.nationality, registers[i].person.sex, registers[i].person.documentType, registers[i].person.documentId, registers[i].manifest.origin.locationName, registers[i].manifest.destination.locationName, sState];
+
+			  data.push(rowA);
+                        } else {
+                          //console.log("=====> isDenied!");
+                        }
+			//}
+		}
+                //console.log("=========== DATA ===========");
+                //console.log(data);
         	var buffer = xlsx.build([{ name: 'mySheetName', data: data }]);
         	return new Promise(resolve => resolve(buffer));
         });
