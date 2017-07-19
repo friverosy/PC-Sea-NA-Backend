@@ -163,10 +163,66 @@ export function upsert(req, res) {
     console.log(req.params.id);
     console.log(req.body);
 
-    return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
-    .exec()
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+    //return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
+    //.exec()
+    //.then(respondWithResult(res))
+    //.catch(handleError(res));
+    //
+    Register.findOne({_id: req.params.id}, function(err, register) {
+      if(err | register = null) { 
+        console.log("Error: Couldn't find register with id " + req.params.id);
+        return  res.status(500).send(err);
+      }
+      //console.log("======Register======");
+      //console.log(register);
+
+      if(register) {
+        //case 1: checkin 
+        if (req.body.state == "checkin") {
+          register.checkinDate = req.body.date
+          register.state = req.body.state;
+          register.seaportCheckin = req.body.seaport;
+
+          register.save(function (err) {
+            if (err) {
+              console.log("Error trying to save the register: " + req.params.id);
+            }
+          }).then(respondWithResult(res))
+            .catch(handleError(res));
+        }
+        //case 2: checkout 
+        if (req.body.state == "checkout" & register.checkinDate != null) {
+          register.checkoutDate = req.body.date;
+          register.state = req.body.state;
+          register.seaportCheckout = req.body.seaportCheckout;
+
+          register.save(function (err) {
+            if (err) {
+              console.log("Error trying to save the register: " + req.params.id);
+            }
+          }).then(respondWithResult(res))
+            .catch(handleError(res));
+        }
+        //case 3: checkout without checkin
+        if (req.body.state == "checkout" & register.checkinDate == null) {
+          console.log("NAV-134: desembarque sin embarque, se genera automaticamente el embargue");
+          var m_date  = new Date(req.body.checkoutDate);
+          m_date = new Date(m_date.getTime() - 1000*60)
+          //console.log(m_date);
+          register.checkinDate = m_date.toString();
+          register.checkoutDate = req.body.checkoutDate;
+          register.state = req.body.state;
+          register.seaportCheckout = req.body.seaportCheckout;
+
+          register.save(function (err) {
+            if (err) {
+              console.log("Error trying to save the register: " + req.params.id);
+            }
+          }).then(respondWithResult(res))
+            .catch(handleError(res));
+        }
+      } 
+    }); 
   }
 }
 
