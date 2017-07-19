@@ -169,7 +169,7 @@ export function upsert(req, res) {
     //.catch(handleError(res));
     //
     Register.findOne({_id: req.params.id}, function(err, register) {
-      if(err | register = null) { 
+      if(err | register == null) { 
         console.log("Error: Couldn't find register with id " + req.params.id);
         return  res.status(500).send(err);
       }
