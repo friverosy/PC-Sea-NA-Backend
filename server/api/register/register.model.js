@@ -95,14 +95,17 @@ RegisterSchema.statics = {
                 documentType: data.documentType
               })
               .then(function(newPerson) {
-                return Register.create({
+                
+                let newRegister = new Register({
                   manifest: newManifest._id,
                   seaportCheckin: data.origin,
                   person: newPerson._id,
                   checkinDate: data.date,
                   isOnboard: true,
                   state: 'checkin'
-                });
+                })
+                
+                return newRegister.save();
               })
               .then(function(newRegister) {
                 return newManifest;
@@ -139,8 +142,7 @@ RegisterSchema.statics = {
                   m_date = data.date;
                 }
                 
-                let registerData
-                = {
+                let registerData = {
                   manifest: newManifest._id,
                   person: newPerson._id,
                   isDenied: true,
