@@ -76,6 +76,9 @@ RegisterSchema.statics = {
   },
   manualSell: function(data) {
     let Register = this;
+    var pPerson; 
+    var pManifest;
+    
     data.isOnboard = true;
 
     console.log("----Manual Sell, data received:");
@@ -86,6 +89,7 @@ RegisterSchema.statics = {
         if(itinerary.active == true){
           return Manifest.create(data)
             .then(function(newManifest) {
+              pManifest = newManifest;
               return Person.create({
                 name: data.name,
                 sex: data.sex,
@@ -95,7 +99,7 @@ RegisterSchema.statics = {
                 documentType: data.documentType
               })
               .then(function(newPerson) {
-                
+                pPerson = newPerson;
                 let newRegister = new Register({
                   manifest: newManifest._id,
                   seaportCheckin: data.origin,
@@ -108,7 +112,22 @@ RegisterSchema.statics = {
                 return newRegister.save();
               })
               .then(function(newRegister) {
-                return newManifest;
+                //return newManifest;
+                var m_name = String(pPerson.name);
+                return {
+                  personId: pPerson._id,
+                  documentId: pPerson.documentId,
+                  name: m_name.trim(),
+                  itinerary: pManifest.itinerary,
+                  origin: pManifest.origin,
+                  destination: pManifest.destination,
+                  refId: pManifest.itinerary.refId,
+                  manifestId: pManifest._id,
+                  registerId: newRegister._id,
+                  isOnboard: newRegister.isOnboard,
+                  reservationStatus: pManifest.reservationStatus,
+                  createdAt:  pManifest.createdAt
+                };
               });
             });
         } else {

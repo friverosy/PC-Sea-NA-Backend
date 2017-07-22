@@ -88,11 +88,14 @@ ItinerarySchema.statics = {
 
 			//if (registers[i].state == "checkin"){
                         if(registers[i].isDenied == false) { 
-
-                          if(registers[i].isOnboard == true) {
-                            sState = "Embarcado";
+			  if (registers[i].state == "pending") {
+			    sState = "No Embarcado";
+		    	  } else if(registers[i].state == "checkin") {
+		            sState = "Embarcado";
+			  } else if(registers[i].state == "checkout") {
+		            sState = "Desembarcado";
                           } else {
-                            sState = "No Embarcado";
+			    sState = "Desconocido";
                           }
 
 			  rowA = [registers[i].manifest.reservationId, registers[i].manifest.ticketId, registers[i].person.name, registers[i].person.resident, registers[i].person.nationality, registers[i].person.sex, registers[i].person.documentType, registers[i].person.documentId, registers[i].manifest.origin.locationName, registers[i].manifest.destination.locationName, sState];
