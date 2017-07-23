@@ -8,8 +8,8 @@ var PersonSchema = new mongoose.Schema({
   resident: String,
   nationality: String,
   documentType: String,
-  age: { type: String, default: '0' },
-  birthdate: { type: String, default: '0' },
+  age: { type: String, default: '' },
+  birthdate: { type: String, default: '' },
   documentId: { type: String, uppercase: true, required: true }
 });
 
