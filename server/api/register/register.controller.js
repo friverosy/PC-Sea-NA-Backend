@@ -312,9 +312,21 @@ export function createManualSell(req, res) {
   //   'documentType'
   // ];
 
-  return Register.manualSell(req.body)
-  .then(respondWithResult(res, 201))
-  .catch(handleError(res));
+  return Manifest.findOne({ticketId: req.body.ticketId}).exec()
+  .then(function(manifest) {
+    if(manifest != null) {
+      console.log('Error, cannot create a duplicated ticket, this ticketId was already sold to this manifest:');
+      console.log(manifest);
+      res.status(400);
+      res.send('Error: Ticket number is duplicated');
+      respondWithResult(res, 400);
+      return {error: 'Error: Ticket number is duplicated'};
+    }
+
+    return Register.manualSell(req.body)
+    .then(respondWithResult(res, 201))
+    .catch(handleError(res));
+  });
 }
 
 export function deniedRegister(req, res) {
