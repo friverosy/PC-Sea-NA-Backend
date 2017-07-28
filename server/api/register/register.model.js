@@ -84,68 +84,57 @@ RegisterSchema.statics = {
     console.log("----Manual Sell, data received:");
     console.log(data)
 
-    //NAV-135, duplicated register for manual sell
-    //use ticketId as criteria, this will prevents resend problem
-    return Manifest.findOne({ticketId: data.ticketId}, function(err, manifest) {
-      if(manifest != null) {
-        console.log("Error: the ticket "  + data.ticketId + " was already sell, reject this request");
-        console.log(manifest);
-        //throw new Error("Error: the ticket "  + data.ticketId + " was already sell, reject this request");
-        return {error: "the ticket "  + data.ticketId + " was already sell, reject this request"};
-      } else {
-        return Itinerary.findById(data.itinerary).exec()
-          .then(function(itinerary){
-            if(itinerary.active == true){
-              return Manifest.create(data)
-                .then(function(newManifest) {
-                  pManifest = newManifest;
-                  return Person.create({
-                    name: data.name,
-                    sex: data.sex,
-                    resident: data.resident,
-                    nationality: data.nationality,
-                    documentId: data.documentId,
-                    documentType: data.documentType
-                  })
-                  .then(function(newPerson) {
-                    pPerson = newPerson;
-                    let newRegister = new Register({
-                      manifest: newManifest._id,
-                      seaportCheckin: data.origin,
-                      person: newPerson._id,
-                      checkinDate: data.date,
-                      isOnboard: true,
-                      state: 'checkin'
-                    })
-                    
-                    return newRegister.save();
-                  })
-                  .then(function(newRegister) {
-                    //return newManifest;
-                    var m_name = String(pPerson.name);
-                    return {
-                      personId: pPerson._id,
-                      documentId: pPerson.documentId,
-                      name: m_name.trim(),
-                      itinerary: pManifest.itinerary,
-                      origin: pManifest.origin,
-                      destination: pManifest.destination,
-                      refId: pManifest.itinerary.refId,
-                      manifestId: pManifest._id,
-                      registerId: newRegister._id,
-                      isOnboard: newRegister.isOnboard,
-                      reservationStatus: pManifest.reservationStatus,
-                      createdAt:  pManifest.createdAt
-                    };
-                  });
-                });
-            } else {
-              console.log("Cannot create manualSell -> Itinerary is not active");
-              throw new Error(`Cannot create manualSell -> Itinerary is not active`);
-            }
-          })
-     }
-    })
+    return Itinerary.findById(data.itinerary).exec()
+      .then(function(itinerary){
+        if(itinerary.active == true){
+          return Manifest.create(data)
+            .then(function(newManifest) {
+              pManifest = newManifest;
+              return Person.create({
+                name: data.name,
+                sex: data.sex,
+                resident: data.resident,
+                nationality: data.nationality,
+                documentId: data.documentId,
+                documentType: data.documentType
+              })
+              .then(function(newPerson) {
+                pPerson = newPerson;
+                let newRegister = new Register({
+                  manifest: newManifest._id,
+                  seaportCheckin: data.origin,
+                  person: newPerson._id,
+                  checkinDate: data.date,
+                  isOnboard: true,
+                  state: 'checkin'
+                })
+                
+                return newRegister.save();
+              })
+              .then(function(newRegister) {
+                //return newManifest;
+                var m_name = String(pPerson.name);
+                return {
+                  personId: pPerson._id,
+                  documentId: pPerson.documentId,
+                  name: m_name.trim(),
+                  itinerary: pManifest.itinerary,
+                  origin: pManifest.origin,
+                  destination: pManifest.destination,
+                  refId: pManifest.itinerary.refId,
+                  manifestId: pManifest._id,
+                  registerId: newRegister._id,
+                  isOnboard: newRegister.isOnboard,
+                  reservationStatus: pManifest.reservationStatus,
+                  createdAt:  pManifest.createdAt
+                };
+              });
+            });
+        } else {
+          console.log("Cannot create manualSell -> Itinerary is not active");
+          throw new Error(`Cannot create manualSell -> Itinerary is not active`);
+        }
+      })
   },
   deniedRegister: function(data) {
     let Register = this;
