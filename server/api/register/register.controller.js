@@ -312,7 +312,7 @@ export function createManualSell(req, res) {
   //   'documentType'
   // ];
 
-  return Manifest.findOne({ticketId: req.body.ticketId}).exec()
+  return Manifest.findOne({ticketId: req.body.ticketId, itinerary: req.body.itinerary}).exec()
   .then(function(manifest) {
     if(manifest != null) {
       console.log('Error, cannot create a duplicated ticket, this ticketId was already sold to this manifest:');
