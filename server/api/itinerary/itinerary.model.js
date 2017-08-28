@@ -5,16 +5,20 @@ import mongoose from 'mongoose';
 import Manifest from '../manifest/manifest.model';
 import Register from '../register/register.model'
 import Itinerary from '../itinerary/itinerary.model';
+import Seaport from '../seaport/seaport.model';
 
 import moment from 'moment';
 import xlsx from 'node-xlsx';
+
+var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 var ItinerarySchema = new mongoose.Schema({
   refId: Number,
   name: String,
   depart: Date,
   arrival: Date,
-  active: { type: Boolean, default: true }
+  active: { type: Boolean, default: true },
+  seaports: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' }] },
 });
 
 ItinerarySchema.index({ refId: 1, depart: 1 }, { unique: true });
@@ -113,5 +117,7 @@ ItinerarySchema.statics = {
         });
   }
 };
+
+ItinerarySchema.plugin(deepPopulate, {});
 
 export default mongoose.model('Itinerary', ItinerarySchema);

@@ -18,4 +18,6 @@ router.get('/:id/export', controller.exportRegistersExcel);
 // router.get('/:id/manifests', controller.getManifests);
 router.get('/:id/registers', controller.getRegisters);
 
+router.post('/:id/updateSeaports', controller.updateSeaports);
+
 module.exports = router;

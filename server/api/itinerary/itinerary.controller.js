@@ -11,9 +11,11 @@
 'use strict';
 
 import jsonpatch from 'fast-json-patch';
+import mongoose from 'mongoose';
 import Itinerary from './itinerary.model';
 import Manifest from '../manifest/manifest.model';
 import Register from '../register/register.model';
+import Seaport from '../seaport/seaport.model';
 import moment from 'moment';
 
 import * as _ from 'lodash';
@@ -154,32 +156,42 @@ export function destroy(req, res) {
 }
 
 export function getSeaports(req, res) {
-  return Manifest.find()
-    .populate('origin destination')
-    .where('itinerary')
-    .equals(req.params.id)
+  // return Manifest.find()
+  //   .populate('origin destination')
+  //   .where('itinerary')
+  //   .equals(req.params.id)
+  //   .exec()
+  //   .map(function(manifest) {
+  //     //console.log("---------");
+  //     //console.log("manifest");
+  //     //console.log(manifest);
+  //     return [
+  //       manifest.origin,
+  //       manifest.destination
+  //     ];
+  //   })
+  //   .then(function(seaports) {
+  //     return _.filter(_.uniqBy(_.flatten(seaports), function(s) {
+  //       if(s)  {
+  //         return s._id.toString();
+  //       } else {
+  //         console.log("Error: manifest has seaport that does not exist");
+  //         console.log("----tshen2-------");
+  //         console.log(s);
+  //       }
+  //     }), s => s != null);
+  //   })
+  //   .then(respondWithResult(res, 201))
+  //   .catch(handleError(res));
+
+  return Itinerary.findById(req.params.id)
+    .deepPopulate('seaports')
+    .select('seaports -_id')
     .exec()
-    .map(function(manifest) {
-      //console.log("---------");
-      //console.log("manifest");
-      //console.log(manifest);
-      return [
-        manifest.origin,
-        manifest.destination
-      ];
+    .then(function(s) {
+      return s.seaports;
     })
-    .then(function(seaports) {
-      return _.filter(_.uniqBy(_.flatten(seaports), function(s) {
-        if(s)  {
-          return s._id.toString();
-        } else {
-          console.log("Error: manifest has seaport that does not exist");
-          console.log("----tshen2-------");
-          console.log(s);
-        }
-      }), s => s != null);
-    })
-    .then(respondWithResult(res, 201))
+    .then(respondWithResult(res))
     .catch(handleError(res));
 }
 
@@ -231,5 +243,27 @@ export function exportRegistersExcel(req, res) {
     
       return res.end(excel);
     })
+    .catch(handleError(res));
+}
+
+export function updateSeaports(req, res) {
+  let itineraryId = req.params.id;
+
+  //console.log(req.body.puertos);
+
+  req.body.puertos.forEach(seaport => {
+    var seaportSave = new Seaport();
+    seaportSave.locationId = seaport.id_ubicacion;
+    seaportSave.locationName = seaport.nombre_ubicacion;
+    seaportSave.save().then(function(s) {
+      Itinerary.update({_id: req.params.id},{$push: {seaports:s}},{upsert:true}).exec();
+    })
+  });
+
+  let baseQuery;
+  baseQuery = Itinerary.findById(req.params.id);
+
+  return baseQuery.exec()
+    .then(respondWithResult(res))
     .catch(handleError(res));
 }
