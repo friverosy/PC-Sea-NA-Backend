@@ -416,6 +416,12 @@ def postPort(port):
     url_nav_port = NAV_API_URL + 'seaports/'
     response = requests.post(url_nav_port, data={'locationId':port['id_ubicacion'], 'locationName':port['nombre_ubicacion']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
+def updateSeaports(itinerary, ports):
+    #print port
+
+    url_nav_port = NAV_API_URL + 'itineraries/' + itinerary + '/updateSeaports'
+    response = requests.post(url_nav_port, data=ports, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
 def postManifest(manifest, refId, itineraryObjectId, port):
     counter = 0
     counter_new = 0
@@ -549,6 +555,9 @@ for opt, arg in opts:
                             postManifest(manifest, refId, itineraryObjectId, p['nombre_ubicacion'])
                         print "listo puerto %s" % (p['nombre_ubicacion']) 
                         print ""
+
+                print 'Updating seaports for itinerary:', itineraryObjectId
+                updateSeaports(itineraryObjectId, ports)
 
                 navDB.remove_deleted_manifests()
                 navDB.enable_processed_manifests()
