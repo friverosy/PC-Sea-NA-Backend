@@ -359,6 +359,23 @@ def getItineraryStatus(itinerary_id):
      
     return "-1"
 
+def getMongoItineraries(date):
+    print 'Date:', date
+
+    url_nav_manifest = NAV_API_URL + 'itineraries?date=' + str(date)
+    #print url_nav_manifest
+    response = requests.get(url_nav_manifest , headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
+    itineraries = json.loads(response.text)
+    #print "------------"
+    #for itinerary in itineraries:
+    #    #print itinerary
+    #    if(itinerary['refId'] == itinerary_id):
+    #        #print "Bingo, found the ObjectId for refId: %d" % itinerary_id 
+    #        return str(itinerary['active'])
+     
+    return itineraries
+
 
 def getInitialManifest(itinerary_id, port_id):
     #print 'Itinerary:', itinerary_id, 'Port:', port_id
@@ -409,6 +426,15 @@ def postItinerary(itinerary):
         itineraryObjectId = json.loads(response.text)['op']['_id']
 
     return itineraryObjectId
+
+def disableItinerary(itinerary):
+    #print itinerary
+
+    #NAV-, itinerary already in mongodb, don't change the date
+    print "    existent itineray, refId= %s, do not change the 'depart' atribute" % (itinerary['refId'])
+    url_nav_itinerary = NAV_API_URL + 'itineraries/'
+    response = requests.post(url_nav_itinerary, data={'refId':itinerary['refId'], 'name':itinerary['name'], 'active': 'false'}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+
 
 def postPort(port):
     #print port
@@ -497,6 +523,27 @@ for opt, arg in opts:
         itineraries = getItineraries(date)
         pp.pprint(itineraries)
 
+
+
+        #NAV-161: if bsale query returns less itineraries than what returned in previous queries, then we need to 
+        #         disable (active=false) the missing itinerary in mongodb in order to align both platforms.
+        mongoItineraries = getMongoItineraries(date)
+        print "Itineraries found in mongodb, for %s:" % (date)
+        pp.pprint(mongoItineraries)
+
+        #generate a list with refIds
+        refIds = []
+        for keyword in itineraries:
+            for itinerary in itineraries[keyword]:
+                refId = itinerary["id_itinerario"]
+                refIds.append(refId)
+
+        for itinerary in mongoItineraries:
+            refId = itinerary["refId"]
+            if refId not in refIds:
+                print "NAV-161: Found a itinerary removed by bsale, we should disable (active=false) this itinerary, refId = %s in the mongodb"  % (refId)
+                disableItinerary(itinerary)
+            
         #print ''
         #print 'Getting Ports Associated to each itinerary'
         for keyword in itineraries:

@@ -80,6 +80,8 @@ export function index(req, res) {
     let dateEnd = moment(dateStart).add(1, 'd')
                     .toISOString();
     baseQuery = Itinerary.find()
+      .where('active')
+      .ne('false')
       .where('depart')
       .gte(dateStart)
       .where('depart')
