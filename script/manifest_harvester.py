@@ -410,7 +410,7 @@ def postItinerary(itinerary):
        #new itienerary, sent all the data to mongodb
        print "    new itineray, refId= %s, set the 'depart' to %s" % (itinerary['id_itinerario'], itinerary['zarpe'])
        url_nav_itinerary = NAV_API_URL + 'itineraries/'
-       response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+       response = requests.post(url_nav_itinerary, data={'refId':itinerary['id_itinerario'], 'depart':itinerary['zarpe'], 'name':itinerary['nombre_ruta'], 'active':'true'}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
     else: 
        #NAV-, itinerary already in mongodb, don't change the date
        print "    existent itineray, refId= %s, do not change the 'depart' atribute" % (itinerary['id_itinerario'])
