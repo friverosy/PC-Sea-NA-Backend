@@ -1,4 +1,4 @@
-# Node.js Backend-Server Skeleton
+# Passenger Control for Sea Transport
 
 ## Getting Started
 
