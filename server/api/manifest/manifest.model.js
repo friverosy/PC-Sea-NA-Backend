@@ -14,8 +14,8 @@ var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 var ManifestSchema = new mongoose.Schema({
   reservationId: Number,
-  reservationStatus: Number,
   ticketId: String,
+  reservationStatus: { type: Number, default: 1 },
   createdAt: { type: Date, default: Date.now },
 
   origin: { type: mongoose.Schema.Types.ObjectId, ref: 'Seaport' },
@@ -23,9 +23,6 @@ var ManifestSchema = new mongoose.Schema({
   itinerary: { type: mongoose.Schema.Types.ObjectId, ref: 'Itinerary'},
   register: { type: mongoose.Schema.Types.ObjectId, ref: 'Register' }
 });
-
-ManifestSchema.index({ itinerary: 1 }, { unique: true });
-ManifestSchema.index({ register: 1 }, { unique: true });
 
 
 ManifestSchema.statics = {
@@ -41,7 +38,7 @@ ManifestSchema.statics = {
 
     return Itinerary.findById(data.itinerary).exec()
       .then(function(itinerary){
-        console.log(itinerary);
+        //console.log(itinerary);
         if(itinerary.active == true){
           return Promise.all([
             Seaport.find().where('locationName')
