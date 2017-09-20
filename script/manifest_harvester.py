@@ -443,10 +443,11 @@ def postPort(port):
     response = requests.post(url_nav_port, data={'locationId':port['id_ubicacion'], 'locationName':port['nombre_ubicacion']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
 def updateSeaports(itinerary, ports):
-    #print port
+    print "updateSeaports"
+    print json.dumps(ports)
 
     url_nav_port = NAV_API_URL + 'itineraries/' + itinerary + '/updateSeaports'
-    response = requests.post(url_nav_port, data=ports, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+    response = requests.post(url_nav_port, data=json.dumps(ports), headers={'Content-Type':'application/json', 'Authorization':'Baerer ' + TOKEN_NAV})
 
 def postManifest(manifest, refId, itineraryObjectId, port):
     counter = 0
