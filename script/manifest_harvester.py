@@ -582,6 +582,9 @@ for opt, arg in opts:
                 print "itinerary : %s " % itineraryObjectId
                 pp.pprint(ports)
 
+                print 'Updating seaports for itinerary:', itineraryObjectId
+                updateSeaports(itineraryObjectId, ports)
+
                 total_manifests = 0
 
                 #print 'Getting Initial Manifest Associated to each itinerary and port'
@@ -604,8 +607,6 @@ for opt, arg in opts:
                         print "listo puerto %s" % (p['nombre_ubicacion']) 
                         print ""
 
-                print 'Updating seaports for itinerary:', itineraryObjectId
-                updateSeaports(itineraryObjectId, ports)
 
                 navDB.remove_deleted_manifests()
                 navDB.enable_processed_manifests()
