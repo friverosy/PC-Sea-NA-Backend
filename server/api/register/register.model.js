@@ -3,6 +3,8 @@
 import mongoose from 'mongoose';
 mongoose.Promise = require('bluebird');
 
+import { EventEmitter } from 'events';
+
 import Person from '../person/person.model';
 import Manifest from '../manifest/manifest.model';
 import Itinerary from '../itinerary/itinerary.model';
@@ -31,9 +33,52 @@ RegisterSchema.index({ isDenied: 1 });
 RegisterSchema.index({ isOnboard: 1 });
 RegisterSchema.index({ state: 1 });
 
+var RegisterEvents = new EventEmitter();
+RegisterEvents.setMaxListeners(0);
+
+//-------------------------------------------------------
+//                  Pre/Post Hooks
+//-------------------------------------------------------
+
+function emitEvent(event) {
+  return function(doc) { 
+    console.log(`emitting scoket.io event...`)
+    
+    RegisterEvents.emit(`${event}:${doc._id}`, doc);
+    RegisterEvents.emit(event, doc);
+  }
+}
+
+RegisterSchema.post('save', function(doc) {
+  emitEvent('save')(doc);
+});
+
+RegisterSchema.post('remove', function(doc) {
+  emitEvent('remove')(doc);
+});
+
+RegisterSchema.post('update', function(doc) {
+  emitEvent('update')(doc);
+});
+
+RegisterSchema.post('findOneAndUpdate', function(doc) {
+  emitEvent('findOneAndUpdate')(doc);
+});
+
+
+//-------------------------------------------------------
+//                     Statics
+//-------------------------------------------------------
+
 RegisterSchema.statics = {
+  getEventEmitter: function() {
+    return RegisterEvents;
+  },
   manualSell: function(data) {
     let Register = this;
+    var pPerson; 
+    var pManifest;
+    
     data.isOnboard = true;
 
     console.log("----Manual Sell, data received:");
@@ -44,6 +89,7 @@ RegisterSchema.statics = {
         if(itinerary.active == true){
           return Manifest.create(data)
             .then(function(newManifest) {
+              pManifest = newManifest;
               return Person.create({
                 name: data.name,
                 sex: data.sex,
@@ -53,17 +99,35 @@ RegisterSchema.statics = {
                 documentType: data.documentType
               })
               .then(function(newPerson) {
-                return Register.create({
+                pPerson = newPerson;
+                let newRegister = new Register({
                   manifest: newManifest._id,
                   seaportCheckin: data.origin,
                   person: newPerson._id,
                   checkinDate: data.date,
                   isOnboard: true,
                   state: 'checkin'
-                });
+                })
+                
+                return newRegister.save();
               })
               .then(function(newRegister) {
-                return newManifest;
+                //return newManifest;
+                var m_name = String(pPerson.name);
+                return {
+                  personId: pPerson._id,
+                  documentId: pPerson.documentId,
+                  name: m_name.trim(),
+                  itinerary: pManifest.itinerary,
+                  origin: pManifest.origin,
+                  destination: pManifest.destination,
+                  refId: pManifest.itinerary.refId,
+                  manifestId: pManifest._id,
+                  registerId: newRegister._id,
+                  isOnboard: newRegister.isOnboard,
+                  reservationStatus: pManifest.reservationStatus,
+                  createdAt:  pManifest.createdAt
+                };
               });
             });
         } else {
@@ -92,13 +156,17 @@ RegisterSchema.statics = {
                 documentType: data.documentType
               })
               .then(function(newPerson) {
-                let registerData
-                = {
+                var m_date = new Date().toLocaleString('es-ES', { timeZone: 'America/Santiago' })
+                if(data.date) {
+                  m_date = data.date;
+                }
+                
+                let registerData = {
                   manifest: newManifest._id,
                   person: newPerson._id,
                   isDenied: true,
                   deniedReason: data.deniedReason,
-                  checkinDate: data.date
+                  checkinDate: m_date
                 };
 
                 if(data.origin) {

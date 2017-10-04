@@ -94,7 +94,8 @@ export function create(req, res) {
 
   requiredParams.forEach(function(p) {
     if(!_.includes(_.keys(req.body), p)) {
-      return res.status(401).json({ messsage: `required parameter "${p}" is missing` });
+      res.status(401).json({ messsage: `required parameter "${p}" is missing` });
+      return false;
     }
   });
 
@@ -162,10 +163,66 @@ export function upsert(req, res) {
     console.log(req.params.id);
     console.log(req.body);
 
-    return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
-    .exec()
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+    //return Register.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: true, setDefaultsOnInsert: true, runValidators: true})
+    //.exec()
+    //.then(respondWithResult(res))
+    //.catch(handleError(res));
+    //
+    Register.findOne({_id: req.params.id}, function(err, register) {
+      if(err | register == null) { 
+        console.log("Error: Couldn't find register with id " + req.params.id);
+        return  res.status(500).send(err);
+      }
+      //console.log("======Register======");
+      //console.log(register);
+
+      if(register) {
+        //case 1: checkin 
+        if (req.body.state == "checkin") {
+          register.checkinDate = req.body.date
+          register.state = req.body.state;
+          register.seaportCheckin = req.body.seaport;
+
+          register.save(function (err) {
+            if (err) {
+              console.log("Error trying to save the register: " + req.params.id);
+            }
+          }).then(respondWithResult(res))
+            .catch(handleError(res));
+        }
+        //case 2: checkout 
+        if (req.body.state == "checkout" & register.checkinDate != null) {
+          register.checkoutDate = req.body.date;
+          register.state = req.body.state;
+          register.seaportCheckout = req.body.seaportCheckout;
+
+          register.save(function (err) {
+            if (err) {
+              console.log("Error trying to save the register: " + req.params.id);
+            }
+          }).then(respondWithResult(res))
+            .catch(handleError(res));
+        }
+        //case 3: checkout without checkin
+        if (req.body.state == "checkout" & register.checkinDate == null) {
+          console.log("NAV-134: desembarque sin embarque, se genera automaticamente el embargue");
+          var m_date  = new Date(req.body.checkoutDate);
+          m_date = new Date(m_date.getTime() - 1000*60)
+          //console.log(m_date);
+          register.checkinDate = m_date.toString();
+          register.checkoutDate = req.body.checkoutDate;
+          register.state = req.body.state;
+          register.seaportCheckout = req.body.seaportCheckout;
+
+          register.save(function (err) {
+            if (err) {
+              console.log("Error trying to save the register: " + req.params.id);
+            }
+          }).then(respondWithResult(res))
+            .catch(handleError(res));
+        }
+      } 
+    }); 
   }
 }
 
@@ -255,9 +312,21 @@ export function createManualSell(req, res) {
   //   'documentType'
   // ];
 
-  return Register.manualSell(req.body)
-  .then(respondWithResult(res, 201))
-  .catch(handleError(res));
+  return Manifest.findOne({ticketId: req.body.ticketId, itinerary: req.body.itinerary}).exec()
+  .then(function(manifest) {
+    if(manifest != null) {
+      console.log('Error, cannot create a duplicated ticket, this ticketId was already sold to this manifest:');
+      console.log(manifest);
+      res.status(400);
+      res.send('Error: Ticket number is duplicated');
+      respondWithResult(res, 400);
+      return {error: 'Error: Ticket number is duplicated'};
+    }
+
+    return Register.manualSell(req.body)
+    .then(respondWithResult(res, 201))
+    .catch(handleError(res));
+  });
 }
 
 export function deniedRegister(req, res) {
