@@ -30,11 +30,17 @@ function respondWithResult(res, statusCode) {
 
 function patchUpdates(patches) {
   return function(entity) {
+    console.log("entity to be patched");
+    console.log(entity);
+    console.log("patches");
+    console.log(patches);
     try {
       jsonpatch.apply(entity, patches, /*validate*/ true);
     } catch(err) {
       return Promise.reject(err);
     }
+    console.log("entity after patch");
+    console.log(entity);
 
     return entity.save();
   };
@@ -92,6 +98,15 @@ export function index(req, res) {
         return manifest.itinerary != null;
       }
     })
+    .filter(function(manifest) {
+      if(req.query.cancel) {
+        //console.log("--------> only cancelled tickets");
+        //console.log("--------> reservationStatus = " + manifest.reservationStatus);
+        return manifest.reservationStatus == -1;
+      } else {
+        return manifest;
+      }
+    })
     .map(function(manifest) {
       //console.log(manifest);
       let baseQuery2;
@@ -99,7 +114,8 @@ export function index(req, res) {
         //console.log("manifest.id= " + manifest._id.getTimestamp());
         var timestamp = new Date(req.query.date);
         //console.log("timestamp=" + timestamp);
-        timestamp.setHours(timestamp.getHours() + 3); //convert CLT to UTC
+        //timestamp.setHours(timestamp.getHours() + 4);
+        //We always assume that the client will send the request in UTC. 
         //console.log("timestamp in UTC=" + timestamp);
         var hexSeconds = Math.floor(timestamp/1000).toString(16);
         //console.log("hex=" + hexSeconds);
@@ -128,16 +144,20 @@ export function index(req, res) {
       return baseQuery2.exec()
         .map(function(register) {
           if(register.person) {
+            var m_name = String(register.person.name);
+
             return {
               personId: register.person._id,
               documentId: register.person.documentId,
-              name: register.person.name,
+              name: m_name.trim(),
               origin: manifest.origin,
               destination: manifest.destination,
               refId: manifest.itinerary.refId,
               manifestId: manifest._id,
               registerId: register._id,
-              isOnboard: register.isOnboard
+              isOnboard: register.isOnboard,
+              reservationStatus: manifest.reservationStatus,
+              createdAt:  manifest.createdAt
             };
           } else {
             console.log('Error: Bad Register, it does not contain register.person._id, these are the faulty documents');
@@ -192,12 +212,17 @@ export function upsert(req, res) {
 
 // Updates an existing Manifest in the DB
 export function patch(req, res) {
+  console.log("patching manifest, patch:");
+  console.log(req.body);
+  console.log("objectId to be patched:");
+  console.log(req.params.id);
+
   if(req.body._id) {
     delete req.body._id;
   }
   return Manifest.findById(req.params.id).exec()
     .then(handleEntityNotFound(res))
-    .then(patchUpdates(req.body))
+    .then(patchUpdates([req.body]))
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
