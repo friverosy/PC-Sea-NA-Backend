@@ -443,10 +443,11 @@ def postPort(port):
     response = requests.post(url_nav_port, data={'locationId':port['id_ubicacion'], 'locationName':port['nombre_ubicacion']}, headers={'Authorization':'Baerer ' + TOKEN_NAV})
 
 def updateSeaports(itinerary, ports):
-    #print port
+    print "updateSeaports"
+    print json.dumps(ports)
 
     url_nav_port = NAV_API_URL + 'itineraries/' + itinerary + '/updateSeaports'
-    response = requests.post(url_nav_port, data=ports, headers={'Authorization':'Baerer ' + TOKEN_NAV})
+    response = requests.post(url_nav_port, data=json.dumps(ports), headers={'Content-Type':'application/json', 'Authorization':'Baerer ' + TOKEN_NAV})
 
 def postManifest(manifest, refId, itineraryObjectId, port):
     counter = 0
@@ -581,6 +582,9 @@ for opt, arg in opts:
                 print "itinerary : %s " % itineraryObjectId
                 pp.pprint(ports)
 
+                print 'Updating seaports for itinerary:', itineraryObjectId
+                updateSeaports(itineraryObjectId, ports)
+
                 total_manifests = 0
 
                 #print 'Getting Initial Manifest Associated to each itinerary and port'
@@ -603,8 +607,6 @@ for opt, arg in opts:
                         print "listo puerto %s" % (p['nombre_ubicacion']) 
                         print ""
 
-                print 'Updating seaports for itinerary:', itineraryObjectId
-                updateSeaports(itineraryObjectId, ports)
 
                 navDB.remove_deleted_manifests()
                 navDB.enable_processed_manifests()
