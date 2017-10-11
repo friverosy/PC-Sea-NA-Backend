@@ -5,6 +5,7 @@ from StringIO import StringIO
 import getopt
 import pprint
 import sqlite3
+import re
 
 TOKEN = '860a2e8f6b125e4c7b9bc83709a0ac1ddac9d40f'
 TOKEN_NAV = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OGRiM2I3NGI0ODRjOTIyOTVmMTE3MWUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE0OTA3NjI2MTl9.pHVwA2u0iaVhjJ_ljU0NtFR_y0EGCwKXsLgIKSUcCK8'
@@ -161,6 +162,8 @@ class nav_db:
         nacionalidad  = manifest['nacionalidad'].encode('ascii','ignore')
         nombre_cod_documento = manifest['nombre_cod_documento'].encode('ascii','ignore')
         nombre_pasajero  = manifest['nombre_pasajero'].encode('ascii','ignore')
+        #remove single quotes 
+        nombre_pasajero = re.sub("[']", '', nombre_pasajero)
         origen = manifest['origen'].encode('ascii', 'ignore')
         residente = manifest['residente'].encode('ascii', 'ignore')
         sexo = manifest['sexo'].encode('ascii', 'ignore')
@@ -251,6 +254,8 @@ class nav_db:
         nacionalidad  = manifest['nacionalidad'].encode('ascii','ignore')
         nombre_cod_documento = manifest['nombre_cod_documento'].encode('ascii','ignore')
         nombre_pasajero  = manifest['nombre_pasajero'].encode('ascii','ignore')
+        #remove single quotes 
+        nombre_pasajero = re.sub("[']", '', nombre_pasajero)
         origen = manifest['origen'].encode('ascii', 'ignore')
         residente = manifest['residente'].encode('ascii', 'ignore')
         sexo = manifest['sexo'].encode('ascii', 'ignore')
